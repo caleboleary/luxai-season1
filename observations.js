@@ -90,6 +90,32 @@ const getClosestUnclaimedCityTileNeedingFuel = (player, unit, claimedTiles) => {
   return closestCityTile;
 };
 
+const getClosestCityTileWithLeastFuel = (player, unit, claimedTiles) => {
+  const citiesArr = Object.values(Object.fromEntries(player.cities));
+
+  let closestDist = 999999;
+  let leastFuel = 999999;
+  let closestCityTile = null;
+
+  citiesArr.forEach((city) => {
+    if (city.fuel / city.citytiles.length < leastFuel) {
+      city.citytiles
+        .filter((citytile) => {
+          return claimedTiles.indexOf(getPositionHash(citytile.pos)) < 0;
+        })
+        .forEach((citytile) => {
+          const dist = citytile.pos.distanceTo(unit.pos);
+          if (dist < closestDist) {
+            closestCityTile = citytile;
+            closestDist = dist;
+          }
+        });
+    }
+  });
+
+  return closestCityTile;
+};
+
 const getAllEmptyTiles = (gameMap) => {
   let emptyTiles = [];
   for (let y = 0; y < gameMap.height; y++) {
@@ -136,14 +162,29 @@ const getCanUnitBuildCityRightNow = (unit, gameMap) => {
   );
 };
 
+const getMyCityTileCount = (player) => {
+  const citiesArr = Object.values(Object.fromEntries(player.cities));
+
+  return getCountOwnedCityTiles(citiesArr);
+};
+
+const getOpponentCityTileCount = (opponent) => {
+  const citiesArr = Object.values(Object.fromEntries(opponent.cities));
+
+  return getCountOwnedCityTiles(citiesArr);
+};
+
 module.exports = {
   getIsUnitCurrentlySharingTileWithOtherUnit,
   getClosestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
   getClosestUnclaimedCityTileNeedingFuel,
+  getClosestCityTileWithLeastFuel,
   getAllEmptyTiles,
   getAllResourceTiles,
   getCountOwnedCityTiles,
   getDoAnyCitiesNeedFuel,
   getCanUnitBuildCityRightNow,
+  getMyCityTileCount,
+  getOpponentCityTileCount,
 };

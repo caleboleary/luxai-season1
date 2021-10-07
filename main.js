@@ -8,6 +8,8 @@ const {
   getCountOwnedCityTiles,
   getDoAnyCitiesNeedFuel,
   getCanUnitBuildCityRightNow,
+  getMyCityTileCount,
+  getOpponentCityTileCount,
 } = require("./observations.js");
 
 const { getPositionHash } = require("./utils.js");
@@ -21,6 +23,8 @@ const {
 } = require("./actions.js");
 
 const logs = [];
+
+const DESIRED_CITY_LEAD_PERCENT = 0.5; //1 here would mean we want double their cities always, .2 means a 20% lead, ie we want 12 if they have 10
 
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
 agent.initialize().then(async () => {
@@ -62,7 +66,13 @@ agent.initialize().then(async () => {
         } else {
           // if unit is a worker and there is no cargo space left, and we have cities, lets return to them
           if (player.cities.size > 0) {
-            if (getDoAnyCitiesNeedFuel(player)) {
+            if (
+              getDoAnyCitiesNeedFuel(player) ||
+              (getMyCityTileCount(player) >
+                getOpponentCityTileCount(opponent) *
+                  (1 + DESIRED_CITY_LEAD_PERCENT) &&
+                gameState.turn <= 300)
+            ) {
               goToNearestCityNeedingFuel(
                 player,
                 unit,

@@ -7,6 +7,7 @@ const {
   getClosestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
   getClosestUnclaimedCityTileNeedingFuel,
+  getClosestCityTileWithLeastFuel,
 } = require("./observations.js");
 
 const goToNearestMineableResource = (
@@ -46,12 +47,55 @@ const goToNearestCityNeedingFuel = (
   );
   if (closestCityTileNeedingFuel != null) {
     const dir = unit.pos.directionTo(closestCityTileNeedingFuel.pos);
-    logs.push(
-      "heading to the closest city needing fuel" +
-        JSON.stringify(closestCityTileNeedingFuel.pos)
+
+    if (
+      claimedTiles.indexOf(
+        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
+      ) > -1
+    ) {
+      moveRandomDirection(unit, actions, logs);
+    } else {
+      actions.push(unit.move(dir));
+      claimedTiles.push(
+        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
+      );
+      logs.push(
+        "heading to the closest city needing fuel" +
+          JSON.stringify(closestCityTileNeedingFuel.pos)
+      );
+    }
+  } else {
+    //no cities needing fuel immediately, go to lowest fuel per tile then
+    const cityTileWithLeastFuel = getClosestCityTileWithLeastFuel(
+      player,
+      unit,
+      claimedTiles
     );
-    actions.push(unit.move(dir));
-    claimedTiles.push(getPositionHash(modelPosMoveByDirection(unit.pos, dir)));
+
+    if (!cityTileWithLeastFuel) {
+      logs.push(
+        "SOMETHING WENT WRONG, COULDNT FIND ANY CITY WHEN LOOKING FOR LEAST FUEL???"
+      );
+      return;
+    }
+
+    const dir = unit.pos.directionTo(cityTileWithLeastFuel.pos);
+    if (
+      claimedTiles.indexOf(
+        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
+      ) > -1
+    ) {
+      moveRandomDirection(unit, actions, logs);
+    } else {
+      logs.push(
+        "heading to the city with lowest fuel (though doesn't need it)" +
+          JSON.stringify(cityTileWithLeastFuel.pos)
+      );
+      actions.push(unit.move(dir));
+      claimedTiles.push(
+        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
+      );
+    }
   }
 };
 
