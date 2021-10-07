@@ -3,6 +3,7 @@ const agent = new kit.Agent();
 const fs = require("fs");
 
 const {
+  getIsUnitCurrentlySharingTileWithOtherUnit,
   getAllResourceTiles,
   getCountOwnedCityTiles,
   getDoAnyCitiesNeedFuel,
@@ -16,6 +17,7 @@ const {
   goToNearestCityNeedingFuel,
   buildCity,
   moveToNearestEmptyTile,
+  moveRandomDirection,
 } = require("./actions.js");
 
 const logs = [];
@@ -44,7 +46,9 @@ agent.initialize().then(async () => {
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
-      if (unit.isWorker() && unit.canAct()) {
+      if (getIsUnitCurrentlySharingTileWithOtherUnit(unit, player)) {
+        moveRandomDirection(unit, actions, logs);
+      } else if (unit.isWorker() && unit.canAct()) {
         if (unit.getCargoSpaceLeft() > 0) {
           // if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
           goToNearestMineableResource(
@@ -88,10 +92,9 @@ agent.initialize().then(async () => {
 
     const citiesArr = Object.values(Object.fromEntries(player.cities));
     let unitCount = player.units.length;
-    //loop cities
+    //loop cities and do stuff with them too!
     citiesArr.forEach((city) => {
       city.citytiles.forEach((cityTile) => {
-        // logs.push([player.units.length, getCountOwnedCityTiles(citiesArr)]);
         if (
           unitCount < getCountOwnedCityTiles(citiesArr) &&
           cityTile.canAct() &&
@@ -120,8 +123,9 @@ agent.initialize().then(async () => {
   }
 });
 
-//y decrease == n
-//y increase == s
-//x decrease == w
-//x increase == e
-//weird seed behavior 567356944
+//TODO:
+// don't kill trees
+// prioritize expansion in morning, fueling in evening?
+// should units stay inside overnight?
+// shhould we try to expand cities rather than spring them up anywhere?
+// a* pathing? - simulate board state if the moves are applied. kind of what we're doing with the claimedtiles but... better.

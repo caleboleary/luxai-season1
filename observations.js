@@ -3,6 +3,14 @@ const DIRECTIONS = GAME_CONSTANTS.DIRECTIONS;
 
 const { getPositionHash } = require("./utils.js");
 
+const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, player) => {
+  const unitsOnTile =
+    player.units.filter((u) => {
+      return u.pos.x === unit.pos.x && u.pos.y === unit.pos.y;
+    }).length || 0;
+  return unitsOnTile > 1;
+};
+
 const getClosestUnclaimedResourceTile = (
   resourceTiles,
   player,
@@ -129,6 +137,7 @@ const getCanUnitBuildCityRightNow = (unit, gameMap) => {
 };
 
 module.exports = {
+  getIsUnitCurrentlySharingTileWithOtherUnit,
   getClosestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
   getClosestUnclaimedCityTileNeedingFuel,

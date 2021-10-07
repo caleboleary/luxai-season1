@@ -1,4 +1,8 @@
-const { getPositionHash, modelPosMoveByDirection } = require("./utils.js");
+const {
+  getPositionHash,
+  modelPosMoveByDirection,
+  randomIntFromInterval,
+} = require("./utils.js");
 const {
   getClosestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
@@ -74,9 +78,17 @@ const moveToNearestEmptyTile = (gameMap, unit, claimedTiles, actions, logs) => {
   }
 };
 
+const DIRS = ["n", "s", "e", "w"];
+
+const moveRandomDirection = (unit, actions, logs) => {
+  logs.push(unit.id + " - moving random direction");
+  actions.push(unit.move(DIRS[randomIntFromInterval(0, 3)]));
+};
+
 module.exports = {
   goToNearestMineableResource,
   goToNearestCityNeedingFuel,
   buildCity,
   moveToNearestEmptyTile,
+  moveRandomDirection,
 };

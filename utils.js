@@ -16,4 +16,12 @@ const modelPosMoveByDirection = (pos, direction) => {
   return pos;
 };
 
-module.exports = { getPositionHash, modelPosMoveByDirection };
+const randomIntFromInterval = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+module.exports = {
+  getPositionHash,
+  modelPosMoveByDirection,
+  randomIntFromInterval,
+};
