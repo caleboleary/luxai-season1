@@ -1,8 +1,4 @@
-const {
-  getPositionHash,
-  modelPosMoveByDirection,
-  randomIntFromInterval,
-} = require("./utils.js");
+const { randomIntFromInterval } = require("./utils.js");
 const {
   getClosestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
@@ -10,40 +6,42 @@ const {
   getClosestCityTileWithLeastFuel,
 } = require("./observations.js");
 
-const goToNearestMineableResource = (unit, actions, resourceTiles, player) => {
+const goToNearestMineableResource = (unit, gameState) => {
   const closestUnclaimedResourceTile = getClosestUnclaimedResourceTile(
-    resourceTiles,
-    player,
-    unit
+    unit,
+    gameState
   );
   if (closestUnclaimedResourceTile != null) {
     const dir = unit.pos.directionTo(closestUnclaimedResourceTile.pos);
     // move the unit in the direction towards the closest resource tile's position.
 
-    actions.push(unit.move(dir));
+    gameState.actions.push(unit.move(dir));
   }
 };
 
-const goToNearestCityNeedingFuel = (player, unit, actions, logs) => {
+const goToNearestCityNeedingFuel = (unit, gameState) => {
   const closestCityTileNeedingFuel = getClosestUnclaimedCityTileNeedingFuel(
-    player,
-    unit
+    unit,
+    gameState
   );
   if (closestCityTileNeedingFuel != null) {
     const dir = unit.pos.directionTo(closestCityTileNeedingFuel.pos);
 
-    actions.push(unit.move(dir));
+    gameState.actions.push(unit.move(dir));
 
-    logs.push(
+    gameState.logs.push(
       "heading to the closest city needing fuel" +
         JSON.stringify(closestCityTileNeedingFuel.pos)
     );
   } else {
     //no cities needing fuel immediately, go to lowest fuel per tile then
-    const cityTileWithLeastFuel = getClosestCityTileWithLeastFuel(player, unit);
+    const cityTileWithLeastFuel = getClosestCityTileWithLeastFuel(
+      unit,
+      gameState
+    );
 
     if (!cityTileWithLeastFuel) {
-      logs.push(
+      gameState.logs.push(
         "SOMETHING WENT WRONG, COULDNT FIND ANY CITY WHEN LOOKING FOR LEAST FUEL???"
       );
       return;
@@ -51,27 +49,33 @@ const goToNearestCityNeedingFuel = (player, unit, actions, logs) => {
 
     const dir = unit.pos.directionTo(cityTileWithLeastFuel.pos);
 
-    logs.push(
+    gameState.logs.push(
       "heading to the city with lowest fuel (though doesn't need it)" +
         JSON.stringify(cityTileWithLeastFuel.pos)
     );
-    actions.push(unit.move(dir));
+    gameState.actions.push(unit.move(dir));
   }
 };
 
-const buildCity = (unit, actions, logs) => {
-  logs.push("TRIED TO BUILD CITY");
-  actions.push(unit.buildCity());
+const buildCity = (unit, gameState) => {
+  gameState.logs.push("TRIED TO BUILD CITY");
+  gameState.actions.push(unit.buildCity());
 };
 
-const moveToNearestEmptyTile = (gameMap, unit, actions, logs) => {
-  const nearestEmptyTile = getNearestUnclaimedEmptyTile(gameMap, unit);
+const moveToNearestEmptyTile = (unit, gameState) => {
+  const nearestEmptyTile = getNearestUnclaimedEmptyTile(unit, gameState);
   if (nearestEmptyTile) {
-    logs.push("trying to move to" + JSON.stringify(nearestEmptyTile.pos));
+    gameState.logs.push(
+      "trying to move to" +
+        JSON.stringify(nearestEmptyTile.pos) +
+        "-from" +
+        JSON.stringify(unit.pos)
+    );
     const dir = unit.pos.directionTo(nearestEmptyTile.pos);
-    actions.push(unit.move(dir));
+    gameState.logs.push("dir is " + dir);
+    gameState.actions.push(unit.move(dir));
   } else {
-    logs.push(
+    gameState.logs.push(
       "fell into the else, something went wrong or there are literally no empty tiles"
     );
   }
@@ -79,9 +83,9 @@ const moveToNearestEmptyTile = (gameMap, unit, actions, logs) => {
 
 const DIRS = ["n", "s", "e", "w"];
 
-const moveRandomDirection = (unit, actions, logs) => {
-  logs.push(unit.id + " - moving random direction");
-  actions.push(unit.move(DIRS[randomIntFromInterval(0, 3)]));
+const moveRandomDirection = (unit, gameState) => {
+  gameState.logs.push(unit.id + " - moving random direction");
+  gameState.actions.push(unit.move(DIRS[randomIntFromInterval(0, 3)]));
 };
 
 module.exports = {

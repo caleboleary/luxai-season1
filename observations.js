@@ -1,8 +1,7 @@
 const GAME_CONSTANTS = require("./lux/game_constants");
 
-const { getPositionHash } = require("./utils.js");
-
-const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, player) => {
+const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, gameState) => {
+  const player = gameState.players[gameState.id];
   const unitsOnTile =
     player.units.filter((u) => {
       return u.pos.x === unit.pos.x && u.pos.y === unit.pos.y;
@@ -10,7 +9,10 @@ const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, player) => {
   return unitsOnTile > 1;
 };
 
-const getClosestUnclaimedResourceTile = (resourceTiles, player, unit) => {
+const getClosestUnclaimedResourceTile = (unit, gameState) => {
+  const player = gameState.players[gameState.id];
+  const resourceTiles = getAllResourceTiles(gameState);
+
   let closestResourceTile = null;
   let closestDist = 9999999;
   resourceTiles.forEach((cell) => {
@@ -36,8 +38,8 @@ const getClosestUnclaimedResourceTile = (resourceTiles, player, unit) => {
   return closestResourceTile;
 };
 
-const getNearestUnclaimedEmptyTile = (gameMap, unit) => {
-  const emptyTiles = getAllEmptyTiles(gameMap);
+const getNearestUnclaimedEmptyTile = (unit, gameState) => {
+  const emptyTiles = getAllEmptyTiles(gameState);
 
   let closestEmptyTile = null;
   let closestDist = 9999999;
@@ -51,7 +53,9 @@ const getNearestUnclaimedEmptyTile = (gameMap, unit) => {
   return closestEmptyTile;
 };
 
-const getClosestUnclaimedCityTileNeedingFuel = (player, unit) => {
+const getClosestUnclaimedCityTileNeedingFuel = (unit, gameState) => {
+  const player = gameState.players[gameState.id];
+
   const citiesArr = Object.values(Object.fromEntries(player.cities));
 
   let closestDist = 999999;
@@ -72,7 +76,9 @@ const getClosestUnclaimedCityTileNeedingFuel = (player, unit) => {
   return closestCityTile;
 };
 
-const getClosestCityTileWithLeastFuel = (player, unit) => {
+const getClosestCityTileWithLeastFuel = (unit, gameState) => {
+  const player = gameState.players[gameState.id];
+
   const citiesArr = Object.values(Object.fromEntries(player.cities));
 
   let closestDist = 999999;
@@ -94,13 +100,12 @@ const getClosestCityTileWithLeastFuel = (player, unit) => {
   return closestCityTile;
 };
 
-const getAllEmptyTiles = (gameMap) => {
+const getAllEmptyTiles = (gameState) => {
   let emptyTiles = [];
-  for (let y = 0; y < gameMap.height; y++) {
-    for (let x = 0; x < gameMap.width; x++) {
-      const cell = gameMap.getCell(x, y);
+  for (let y = 0; y < gameState.map.height; y++) {
+    for (let x = 0; x < gameState.map.width; x++) {
+      const cell = gameState.map.getCell(x, y);
       if (!cell.citytile && !cell.resource) {
-        // logs.push("empty tile?: " + JSON.stringify(cell));
         emptyTiles.push(cell);
       }
     }
@@ -109,11 +114,11 @@ const getAllEmptyTiles = (gameMap) => {
   return emptyTiles;
 };
 
-const getAllResourceTiles = (gameMap) => {
+const getAllResourceTiles = (gameState) => {
   let resourceTiles = [];
-  for (let y = 0; y < gameMap.height; y++) {
-    for (let x = 0; x < gameMap.width; x++) {
-      const cell = gameMap.getCell(x, y);
+  for (let y = 0; y < gameState.map.height; y++) {
+    for (let x = 0; x < gameState.map.width; x++) {
+      const cell = gameState.map.getCell(x, y);
       if (cell.hasResource()) {
         resourceTiles.push(cell);
       }
@@ -129,24 +134,31 @@ const getCountOwnedCityTiles = (cities) => {
   }, 0);
 };
 
-const getDoAnyCitiesNeedFuel = (player) => {
+const getDoAnyCitiesNeedFuel = (gameState) => {
+  const player = gameState.players[gameState.id];
+
   const cities = Object.values(Object.fromEntries(player.cities));
   return cities.filter((city) => city.lightUpkeep * 15 > city.fuel).length > 0;
 };
 
-const getCanUnitBuildCityRightNow = (unit, gameMap) => {
+const getCanUnitBuildCityRightNow = (unit, gameState) => {
   return (
-    unit.canBuild(gameMap) && unit.canAct() && unit.getCargoSpaceLeft() < 1
+    unit.canBuild(gameState.map) &&
+    unit.canAct() &&
+    unit.getCargoSpaceLeft() < 1
   );
 };
 
-const getMyCityTileCount = (player) => {
+const getMyCityTileCount = (gameState) => {
+  const player = gameState.players[gameState.id];
+
   const citiesArr = Object.values(Object.fromEntries(player.cities));
 
   return getCountOwnedCityTiles(citiesArr);
 };
 
-const getOpponentCityTileCount = (opponent) => {
+const getOpponentCityTileCount = (gameState) => {
+  const opponent = gameState.players[(gameState.id + 1) % 2];
   const citiesArr = Object.values(Object.fromEntries(opponent.cities));
 
   return getCountOwnedCityTiles(citiesArr);
