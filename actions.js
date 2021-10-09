@@ -10,67 +10,37 @@ const {
   getClosestCityTileWithLeastFuel,
 } = require("./observations.js");
 
-const goToNearestMineableResource = (
-  unit,
-  actions,
-  resourceTiles,
-  player,
-  claimedTiles,
-  logs
-) => {
+const goToNearestMineableResource = (unit, actions, resourceTiles, player) => {
   const closestUnclaimedResourceTile = getClosestUnclaimedResourceTile(
     resourceTiles,
     player,
-    unit,
-    claimedTiles
+    unit
   );
   if (closestUnclaimedResourceTile != null) {
     const dir = unit.pos.directionTo(closestUnclaimedResourceTile.pos);
     // move the unit in the direction towards the closest resource tile's position.
 
     actions.push(unit.move(dir));
-    claimedTiles.push(getPositionHash(modelPosMoveByDirection(unit.pos, dir)));
   }
 };
 
-const goToNearestCityNeedingFuel = (
-  player,
-  unit,
-  claimedTiles,
-  actions,
-  logs
-) => {
+const goToNearestCityNeedingFuel = (player, unit, actions, logs) => {
   const closestCityTileNeedingFuel = getClosestUnclaimedCityTileNeedingFuel(
     player,
-    unit,
-    claimedTiles
+    unit
   );
   if (closestCityTileNeedingFuel != null) {
     const dir = unit.pos.directionTo(closestCityTileNeedingFuel.pos);
 
-    if (
-      claimedTiles.indexOf(
-        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
-      ) > -1
-    ) {
-      moveRandomDirection(unit, actions, logs);
-    } else {
-      actions.push(unit.move(dir));
-      claimedTiles.push(
-        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
-      );
-      logs.push(
-        "heading to the closest city needing fuel" +
-          JSON.stringify(closestCityTileNeedingFuel.pos)
-      );
-    }
+    actions.push(unit.move(dir));
+
+    logs.push(
+      "heading to the closest city needing fuel" +
+        JSON.stringify(closestCityTileNeedingFuel.pos)
+    );
   } else {
     //no cities needing fuel immediately, go to lowest fuel per tile then
-    const cityTileWithLeastFuel = getClosestCityTileWithLeastFuel(
-      player,
-      unit,
-      claimedTiles
-    );
+    const cityTileWithLeastFuel = getClosestCityTileWithLeastFuel(player, unit);
 
     if (!cityTileWithLeastFuel) {
       logs.push(
@@ -80,22 +50,12 @@ const goToNearestCityNeedingFuel = (
     }
 
     const dir = unit.pos.directionTo(cityTileWithLeastFuel.pos);
-    if (
-      claimedTiles.indexOf(
-        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
-      ) > -1
-    ) {
-      moveRandomDirection(unit, actions, logs);
-    } else {
-      logs.push(
-        "heading to the city with lowest fuel (though doesn't need it)" +
-          JSON.stringify(cityTileWithLeastFuel.pos)
-      );
-      actions.push(unit.move(dir));
-      claimedTiles.push(
-        getPositionHash(modelPosMoveByDirection(unit.pos, dir))
-      );
-    }
+
+    logs.push(
+      "heading to the city with lowest fuel (though doesn't need it)" +
+        JSON.stringify(cityTileWithLeastFuel.pos)
+    );
+    actions.push(unit.move(dir));
   }
 };
 
@@ -104,17 +64,12 @@ const buildCity = (unit, actions, logs) => {
   actions.push(unit.buildCity());
 };
 
-const moveToNearestEmptyTile = (gameMap, unit, claimedTiles, actions, logs) => {
-  const nearestEmptyTile = getNearestUnclaimedEmptyTile(
-    gameMap,
-    unit,
-    claimedTiles
-  );
+const moveToNearestEmptyTile = (gameMap, unit, actions, logs) => {
+  const nearestEmptyTile = getNearestUnclaimedEmptyTile(gameMap, unit);
   if (nearestEmptyTile) {
     logs.push("trying to move to" + JSON.stringify(nearestEmptyTile.pos));
     const dir = unit.pos.directionTo(nearestEmptyTile.pos);
     actions.push(unit.move(dir));
-    claimedTiles.push(getPositionHash(modelPosMoveByDirection(unit.pos, dir)));
   } else {
     logs.push(
       "fell into the else, something went wrong or there are literally no empty tiles"

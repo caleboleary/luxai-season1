@@ -1,5 +1,4 @@
 const GAME_CONSTANTS = require("./lux/game_constants");
-const DIRECTIONS = GAME_CONSTANTS.DIRECTIONS;
 
 const { getPositionHash } = require("./utils.js");
 
@@ -11,61 +10,48 @@ const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, player) => {
   return unitsOnTile > 1;
 };
 
-const getClosestUnclaimedResourceTile = (
-  resourceTiles,
-  player,
-  unit,
-  claimedTiles
-) => {
+const getClosestUnclaimedResourceTile = (resourceTiles, player, unit) => {
   let closestResourceTile = null;
   let closestDist = 9999999;
-  resourceTiles
-    .filter((tile) => {
-      return claimedTiles.indexOf(getPositionHash(tile.pos)) < 0;
-    })
-    .forEach((cell) => {
-      if (
-        cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL &&
-        !player.researchedCoal()
-      )
-        return;
-      if (
-        cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM &&
-        !player.researchedUranium()
-      )
-        return;
-      const dist = cell.pos.distanceTo(unit.pos);
-      if (
-        dist < closestDist &&
-        (cell.resource.type !== "wood" || cell.resource.amount > 50)
-      ) {
-        closestDist = dist;
-        closestResourceTile = cell;
-      }
-    });
+  resourceTiles.forEach((cell) => {
+    if (
+      cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL &&
+      !player.researchedCoal()
+    )
+      return;
+    if (
+      cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM &&
+      !player.researchedUranium()
+    )
+      return;
+    const dist = cell.pos.distanceTo(unit.pos);
+    if (
+      dist < closestDist &&
+      (cell.resource.type !== "wood" || cell.resource.amount > 50)
+    ) {
+      closestDist = dist;
+      closestResourceTile = cell;
+    }
+  });
   return closestResourceTile;
 };
 
-const getNearestUnclaimedEmptyTile = (gameMap, unit, claimedTiles) => {
+const getNearestUnclaimedEmptyTile = (gameMap, unit) => {
   const emptyTiles = getAllEmptyTiles(gameMap);
 
   let closestEmptyTile = null;
   let closestDist = 9999999;
-  emptyTiles
-    .filter((tile) => {
-      return claimedTiles.indexOf(getPositionHash(tile.pos)) < 0;
-    })
-    .forEach((cell) => {
-      const dist = cell.pos.distanceTo(unit.pos);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestEmptyTile = cell;
-      }
-    });
+  emptyTiles.forEach((cell) => {
+    const dist = cell.pos.distanceTo(unit.pos);
+    if (dist < closestDist) {
+      closestDist = dist;
+      closestEmptyTile = cell;
+    }
+  });
   return closestEmptyTile;
 };
 
-const getClosestUnclaimedCityTileNeedingFuel = (player, unit, claimedTiles) => {
+const getClosestUnclaimedCityTileNeedingFuel = (player, unit) => {
   const citiesArr = Object.values(Object.fromEntries(player.cities));
 
   let closestDist = 999999;
@@ -73,24 +59,20 @@ const getClosestUnclaimedCityTileNeedingFuel = (player, unit, claimedTiles) => {
 
   citiesArr.forEach((city) => {
     if (city.lightUpkeep * 10 > city.fuel) {
-      city.citytiles
-        .filter((citytile) => {
-          return claimedTiles.indexOf(getPositionHash(citytile.pos)) < 0;
-        })
-        .forEach((citytile) => {
-          const dist = citytile.pos.distanceTo(unit.pos);
-          if (dist < closestDist) {
-            closestCityTile = citytile;
-            closestDist = dist;
-          }
-        });
+      city.citytiles.forEach((citytile) => {
+        const dist = citytile.pos.distanceTo(unit.pos);
+        if (dist < closestDist) {
+          closestCityTile = citytile;
+          closestDist = dist;
+        }
+      });
     }
   });
 
   return closestCityTile;
 };
 
-const getClosestCityTileWithLeastFuel = (player, unit, claimedTiles) => {
+const getClosestCityTileWithLeastFuel = (player, unit) => {
   const citiesArr = Object.values(Object.fromEntries(player.cities));
 
   let closestDist = 999999;
@@ -99,17 +81,13 @@ const getClosestCityTileWithLeastFuel = (player, unit, claimedTiles) => {
 
   citiesArr.forEach((city) => {
     if (city.fuel / city.citytiles.length < leastFuel) {
-      city.citytiles
-        .filter((citytile) => {
-          return claimedTiles.indexOf(getPositionHash(citytile.pos)) < 0;
-        })
-        .forEach((citytile) => {
-          const dist = citytile.pos.distanceTo(unit.pos);
-          if (dist < closestDist) {
-            closestCityTile = citytile;
-            closestDist = dist;
-          }
-        });
+      city.citytiles.forEach((citytile) => {
+        const dist = citytile.pos.distanceTo(unit.pos);
+        if (dist < closestDist) {
+          closestCityTile = citytile;
+          closestDist = dist;
+        }
+      });
     }
   });
 
@@ -153,7 +131,7 @@ const getCountOwnedCityTiles = (cities) => {
 
 const getDoAnyCitiesNeedFuel = (player) => {
   const cities = Object.values(Object.fromEntries(player.cities));
-  return cities.filter((city) => city.lightUpkeep * 10 > city.fuel).length > 0;
+  return cities.filter((city) => city.lightUpkeep * 15 > city.fuel).length > 0;
 };
 
 const getCanUnitBuildCityRightNow = (unit, gameMap) => {

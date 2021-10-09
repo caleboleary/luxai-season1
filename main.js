@@ -24,8 +24,6 @@ const {
 
 const logs = [];
 
-const DESIRED_CITY_LEAD_PERCENT = 0.5; //1 here would mean we want double their cities always, .2 means a 20% lead, ie we want 12 if they have 10
-
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
 agent.initialize().then(async () => {
   while (true) {
@@ -42,11 +40,6 @@ agent.initialize().then(async () => {
     const gameMap = gameState.map;
 
     const resourceTiles = getAllResourceTiles(gameMap);
-    // const claimedTiles = [];
-    const claimedTiles = [
-      ...player.units.map((unit) => getPositionHash(unit.pos)),
-      ...opponent.units.map((unit) => getPositionHash(unit.pos)),
-    ];
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
@@ -60,37 +53,18 @@ agent.initialize().then(async () => {
             actions,
             resourceTiles,
             player,
-            claimedTiles,
             logs
           );
         } else {
           // if unit is a worker and there is no cargo space left, and we have cities, lets return to them
           if (player.cities.size > 0) {
-            if (
-              getDoAnyCitiesNeedFuel(player) ||
-              (getMyCityTileCount(player) >
-                getOpponentCityTileCount(opponent) *
-                  (1 + DESIRED_CITY_LEAD_PERCENT) &&
-                gameState.turn <= 300)
-            ) {
-              goToNearestCityNeedingFuel(
-                player,
-                unit,
-                claimedTiles,
-                actions,
-                logs
-              );
+            if (getDoAnyCitiesNeedFuel(player)) {
+              goToNearestCityNeedingFuel(player, unit, actions, logs);
             } else if (getCanUnitBuildCityRightNow(unit, gameMap)) {
               buildCity(unit, actions, logs);
             } else {
               //move to nearest empty tile
-              moveToNearestEmptyTile(
-                gameMap,
-                unit,
-                claimedTiles,
-                actions,
-                logs
-              );
+              moveToNearestEmptyTile(gameMap, unit, actions, logs);
             }
           } else {
             //if no cities, try to build one? Hopefully someone can!
@@ -107,8 +81,7 @@ agent.initialize().then(async () => {
       city.citytiles.forEach((cityTile) => {
         if (
           unitCount < getCountOwnedCityTiles(citiesArr) &&
-          cityTile.canAct() &&
-          claimedTiles.indexOf(getPositionHash(cityTile.pos) < 0)
+          cityTile.canAct()
         ) {
           actions.push(cityTile.buildWorker());
           unitCount++;
