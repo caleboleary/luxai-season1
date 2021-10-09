@@ -35,8 +35,7 @@ agent.initialize().then(async () => {
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
-      // unitArchetypes[unit.id](unit, gameState);
-      generalist(unit, gameState);
+      unitArchetypes[unit.id](unit, gameState);
     });
 
     const citiesArr = Object.values(Object.fromEntries(player.cities));
@@ -77,3 +76,4 @@ agent.initialize().then(async () => {
 // should units stay inside overnight?
 // shhould we try to expand cities rather than spring them up anywhere?
 // a* pathing? - simulate board state if the moves are applied. kind of what we're doing with the claimedtiles but... better.
+// informative logs
