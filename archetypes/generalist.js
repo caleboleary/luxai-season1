@@ -1,11 +1,7 @@
 const {
     getIsUnitCurrentlySharingTileWithOtherUnit,
-    getAllResourceTiles,
-    getCountOwnedCityTiles,
     getDoAnyCitiesNeedFuel,
     getCanUnitBuildCityRightNow,
-    getMyCityTileCount,
-    getOpponentCityTileCount,
 } = require("../observations.js");
 
 const { getPositionHash } = require("../utils.js");
@@ -19,33 +15,29 @@ const {
 } = require("../actions.js");
 
 //generalist = collects resources, builds cities
-const generalist = (unit) => {
-    if (getIsUnitCurrentlySharingTileWithOtherUnit(unit, player)) {
-        moveRandomDirection(unit, actions, logs);
+const generalist = (unit, gameState) => {
+    const player = gameState.players[gameState.id];
+
+    if (getIsUnitCurrentlySharingTileWithOtherUnit(unit, gameState)) {
+        moveRandomDirection(unit, gameState);
     } else if (unit.isWorker() && unit.canAct()) {
         if (unit.getCargoSpaceLeft() > 0) {
             // if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
-            goToNearestMineableResource(
-                unit,
-                actions,
-                resourceTiles,
-                player,
-                logs
-            );
+            goToNearestMineableResource(unit, gameState);
         } else {
             // if unit is a worker and there is no cargo space left, and we have cities, lets return to them
             if (player.cities.size > 0) {
-                if (getDoAnyCitiesNeedFuel(player)) {
-                    goToNearestCityNeedingFuel(player, unit, actions, logs);
-                } else if (getCanUnitBuildCityRightNow(unit, gameMap)) {
-                    buildCity(unit, actions, logs);
+                if (getDoAnyCitiesNeedFuel(gameState)) {
+                    goToNearestCityNeedingFuel(unit, gameState);
+                } else if (getCanUnitBuildCityRightNow(unit, gameState)) {
+                    buildCity(unit, gameState);
                 } else {
                     //move to nearest empty tile
-                    moveToNearestEmptyTile(gameMap, unit, actions, logs);
+                    moveToNearestEmptyTile(unit, gameState);
                 }
             } else {
                 //if no cities, try to build one? Hopefully someone can!
-                buildCity(unit, actions, logs);
+                buildCity(unit, gameState);
             }
         }
     }
