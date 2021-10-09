@@ -2,84 +2,73 @@ const kit = require("./lux/kit");
 const agent = new kit.Agent();
 const fs = require("fs");
 
-const {
-    getIsUnitCurrentlySharingTileWithOtherUnit,
-    getCountOwnedCityTiles,
-    getDoAnyCitiesNeedFuel,
-    getCanUnitBuildCityRightNow,
-} = require("./observations.js");
+const { getCountOwnedCityTiles } = require("./observations.js");
 
-const {
-    goToNearestMineableResource,
-    goToNearestCityNeedingFuel,
-    buildCity,
-    moveToNearestEmptyTile,
-    moveRandomDirection,
-} = require("./actions.js");
-
-const {
-    generalist
-} = require("./archetypes/generalist");
-const {
-    collector
-} = require("./archetypes/collector");
+const { generalist } = require("./archetypes/generalist");
+const { collector } = require("./archetypes/collector");
 
 const logs = [];
 
+const unitArchetypes = {};
+
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
-agent.initialize().then(async() => {
-    while (true) {
-        /** Do not edit! **/
-        // wait for updates
-        await agent.update();
+agent.initialize().then(async () => {
+  while (true) {
+    /** Do not edit! **/
+    // wait for updates
+    await agent.update();
 
-        const actions = [];
-        const gameState = agent.gameState;
-        gameState.actions = actions;
-        gameState.logs = logs;
-        /** AI Code Goes Below! **/
+    const actions = [];
+    const gameState = agent.gameState;
+    gameState.actions = actions;
+    gameState.logs = logs;
+    /** AI Code Goes Below! **/
 
-        const player = gameState.players[gameState.id];
+    const player = gameState.players[gameState.id];
 
-        // we iterate over all our units and do something with them
-        player.units.forEach((unit) => {
-            if (unit.id % 2 || player.units.length == 1) {
-                generalist(unit, gameState);
-            } else {
-                collector(unit, gameState);
-            }
-        });
+    player.units.forEach((unit, index) => {
+      if (!unitArchetypes.hasOwnProperty(unit.id)) {
+        unitArchetypes[unit.id] =
+          index % 2 || player.units.length == 1 ? generalist : collector;
+      }
+    });
 
-        const citiesArr = Object.values(Object.fromEntries(player.cities));
-        let unitCount = player.units.length;
-        //loop cities and do stuff with them too!
-        citiesArr.forEach((city) => {
-            city.citytiles.forEach((cityTile) => {
-                if (
-                    unitCount < getCountOwnedCityTiles(citiesArr) &&
-                    cityTile.canAct()
-                ) {
-                    actions.push(cityTile.buildWorker());
-                    unitCount++;
-                } else if (cityTile.canAct() && player.researchPoints < 200) {
-                    actions.push(cityTile.research());
-                }
-            });
-        });
+    // we iterate over all our units and do something with them
+    player.units.forEach((unit) => {
+      // unitArchetypes[unit.id](unit, gameState);
+      generalist(unit, gameState);
+    });
 
-        // you can add debug annotations using the functions in the annotate object
-        // actions.push(annotate.circle(0, 0))
-        fs.writeFileSync("logs.txt", logs.join("\r\n"), () => {
-            console.log("wrote logs");
-        });
+    const citiesArr = Object.values(Object.fromEntries(player.cities));
+    let unitCount = player.units.length;
+    //loop cities and do stuff with them too!
+    citiesArr.forEach((city) => {
+      city.citytiles.forEach((cityTile) => {
+        if (
+          unitCount < getCountOwnedCityTiles(citiesArr) &&
+          cityTile.canAct()
+        ) {
+          actions.push(cityTile.buildWorker());
+          unitCount++;
+        } else if (cityTile.canAct() && player.researchPoints < 200) {
+          actions.push(cityTile.research());
+        }
+      });
+    });
 
-        /** AI Code Goes Above! **/
+    // you can add debug annotations using the functions in the annotate object
+    // actions.push(annotate.circle(0, 0))
+    fs.writeFileSync("logs.txt", logs.join("\r\n"), () => {
+      console.log("wrote logs");
+    });
 
-        /** Do not edit! **/
-        console.log(actions.join(","));
-        // end turn
-        agent.endTurn();
-    }
+    /** AI Code Goes Above! **/
+
+    /** Do not edit! **/
+    console.log(actions.join(","));
+    // end turn
+    agent.endTurn();
+  }
 });
 
 //TODO:

@@ -27,10 +27,7 @@ const getClosestUnclaimedResourceTile = (unit, gameState) => {
     )
       return;
     const dist = cell.pos.distanceTo(unit.pos);
-    if (
-      dist < closestDist &&
-      (cell.resource.type !== "wood" || cell.resource.amount > 50)
-    ) {
+    if (dist < closestDist) {
       closestDist = dist;
       closestResourceTile = cell;
     }
