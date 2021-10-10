@@ -1,0 +1,22 @@
+{
+  "name": "luxai-season1-vance",
+  "version": "1.0.0",
+  "description": "to zip for upload upload:",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caleboleary/luxai-season1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/caleboleary/luxai-season1/issues"
+  },
+  "homepage": "https://github.com/caleboleary/luxai-season1#readme",
+  "dependencies": {
+    "pathfinding": "^0.4.18"
+  }
+}

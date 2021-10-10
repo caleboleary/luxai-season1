@@ -2,7 +2,8 @@ const kit = require("./lux/kit");
 const agent = new kit.Agent();
 const fs = require("fs");
 
-const { getCountOwnedCityTiles } = require("./observations.js");
+const { getCountOwnedCityTiles } = require("./observations");
+const { initializeLiveMap } = require("./utils");
 
 const { generalist } = require("./archetypes/generalist");
 const { collector } = require("./archetypes/collector");
@@ -22,6 +23,7 @@ agent.initialize().then(async () => {
     const gameState = agent.gameState;
     gameState.actions = actions;
     gameState.logs = logs;
+    gameState.liveMap = initializeLiveMap(gameState); //clone of map that we updated with chosen moves
     /** AI Code Goes Below! **/
 
     const player = gameState.players[gameState.id];
@@ -35,7 +37,8 @@ agent.initialize().then(async () => {
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
-      unitArchetypes[unit.id](unit, gameState);
+      // unitArchetypes[unit.id](unit, gameState);
+      generalist(unit, gameState);
     });
 
     const citiesArr = Object.values(Object.fromEntries(player.cities));
