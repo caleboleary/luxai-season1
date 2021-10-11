@@ -7,13 +7,14 @@ const { initializeLiveMap } = require("./utils");
 
 const { generalist } = require("./archetypes/generalist");
 const { collector } = require("./archetypes/collector");
+const { builder } = require("./archetypes/builder");
 
 const logs = [];
 
 const unitArchetypes = {};
 
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
-agent.initialize().then(async () => {
+agent.initialize().then(async() => {
   while (true) {
     /** Do not edit! **/
     // wait for updates

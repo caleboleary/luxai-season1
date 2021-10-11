@@ -1,29 +1,29 @@
 {
-    "name": "luxai-season1-vance",
-    "version": "1.0.0",
-    "description": "to zip for upload upload:",
-    "main": "main.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "tournament": "lux-ai-2021 main.js ../luxv2/main.js --rankSystem=\"trueskill\" --tournament --storeReplay=false --storeLogs=false --maxConcurrentMatches=2",
-        "battle": "lux-ai-2021 main.js ../luxv2/main.js",
-        "zip": "tar -czvf submission.tar.gz lux/* main.py main.js actions.js observations.js utils.js archetypes/* CONFIG.js node_modules/*",
-        "debug": "lux-ai-2021 main.js ../luxv2/main.js --loglevel 2 --storeLogs false --out replays/replay.json --seed 93543194",
-        "watch": "watch -p '**/*.js' -c 'npm run debug'"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/caleboleary/luxai-season1.git"
-    },
-    "author": "",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/caleboleary/luxai-season1/issues"
-    },
-    "homepage": "https://github.com/caleboleary/luxai-season1#readme",
-    "dependencies": {
-        "@lux-ai/2021-challenge": "^3.1.0",
-        "pathfinding": "^0.4.18",
-        "watch-cli": "^0.2.3"
-    }
+  "name": "luxai-season1-vance",
+  "version": "1.0.0",
+  "description": "to zip for upload upload:",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tournament": "lux-ai-2021 main.js ../luxv2/main.js --rankSystem=\"trueskill\" --tournament --storeReplay=false --storeLogs=false --maxConcurrentMatches=2",
+    "battle": "lux-ai-2021 main.js ../luxv2/main.js",
+    "zip": "tar -czvf submission.tar.gz lux/* main.py main.js actions.js observations.js utils.js archetypes/* CONFIG.js node_modules/*",
+    "debug": "lux-ai-2021 main.js ../luxv2/main.js --loglevel 2 --storeLogs false --out replays/replay.json --seed 93543194",
+    "watch": "nodemon -e js -x npm.cmd run debug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caleboleary/luxai-season1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/caleboleary/luxai-season1/issues"
+  },
+  "homepage": "https://github.com/caleboleary/luxai-season1#readme",
+  "dependencies": {
+    "@lux-ai/2021-challenge": "^3.1.0",
+    "nodemon": "^2.0.13",
+    "pathfinding": "^0.4.18"
+  }
 }
