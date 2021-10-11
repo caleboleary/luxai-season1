@@ -1,4 +1,5 @@
 const GAME_CONSTANTS = require("./lux/game_constants");
+const CONFIG = require("./CONFIG");
 
 const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, gameState) => {
   const player = gameState.players[gameState.id];
@@ -15,23 +16,33 @@ const getClosestUnclaimedResourceTile = (unit, gameState) => {
 
   let closestResourceTile = null;
   let closestDist = 9999999;
-  resourceTiles.forEach((cell) => {
-    if (
-      cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL &&
-      !player.researchedCoal()
-    )
-      return;
-    if (
-      cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM &&
-      !player.researchedUranium()
-    )
-      return;
-    const dist = cell.pos.distanceTo(unit.pos);
-    if (dist < closestDist) {
-      closestDist = dist;
-      closestResourceTile = cell;
-    }
-  });
+  resourceTiles
+    .filter((rT) => {
+      if (
+        gameState.liveMap.map[rT.pos.y][rT.pos.x].playerUnits ||
+        gameState.liveMap.map[rT.pos.y][rT.pos.x].opponentUnits
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .forEach((cell) => {
+      if (
+        cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL &&
+        !player.researchedCoal()
+      )
+        return;
+      if (
+        cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM &&
+        !player.researchedUranium()
+      )
+        return;
+      const dist = cell.pos.distanceTo(unit.pos);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestResourceTile = cell;
+      }
+    });
   return closestResourceTile;
 };
 
@@ -40,13 +51,23 @@ const getNearestUnclaimedEmptyTile = (unit, gameState) => {
 
   let closestEmptyTile = null;
   let closestDist = 9999999;
-  emptyTiles.forEach((cell) => {
-    const dist = cell.pos.distanceTo(unit.pos);
-    if (dist < closestDist) {
-      closestDist = dist;
-      closestEmptyTile = cell;
-    }
-  });
+  emptyTiles
+    .filter((eT) => {
+      if (
+        gameState.liveMap.map[eT.pos.y][eT.pos.x].playerUnits ||
+        gameState.liveMap.map[eT.pos.y][eT.pos.x].opponentUnits
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .forEach((cell) => {
+      const dist = cell.pos.distanceTo(unit.pos);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestEmptyTile = cell;
+      }
+    });
   return closestEmptyTile;
 };
 
@@ -135,20 +156,25 @@ const getDoAnyCitiesNeedFuel = (gameState) => {
   const player = gameState.players[gameState.id];
 
   const cities = Object.values(Object.fromEntries(player.cities));
-  return cities.filter((city) => city.lightUpkeep * 15 > city.fuel).length > 0;
+  return (
+    cities.filter((city) => {
+      if (gameState.turn > 320) return city.lightUpkeep * 10 > city.fuel; //if we're in the last day, we only need fuel enough for the last night, no extra
+      return city.lightUpkeep * (10 * CONFIG.CITY_HUNGER_BUFFER) > city.fuel; //"need fuel" defined as enough for next night and half of following
+    }).length > 0
+  );
 };
 
 const getCanUnitBuildCityRightNow = (unit, gameState) => {
   return (
     unit.canBuild(gameState.map) &&
     unit.canAct() &&
-    unit.getCargoSpaceLeft() < 1
+    unit.getCargoSpaceLeft() < 1 &&
+    !gameState.map.getCell(unit.pos.x, unit.pos.y).hasResource()
   );
 };
 
 const getMyCityTileCount = (gameState) => {
   const player = gameState.players[gameState.id];
-
   const citiesArr = Object.values(Object.fromEntries(player.cities));
 
   return getCountOwnedCityTiles(citiesArr);
