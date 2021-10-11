@@ -6,7 +6,7 @@ const { getCountOwnedCityTiles } = require("./observations");
 const { initializeLiveMap } = require("./utils");
 
 const { generalist, collector, expander, builder } = require("./archetypes");
-const { fullGeneralist } = require("./plays");
+const { fullGeneralist, rushCoal, rushUranium } = require("./plays");
 
 const logs = [];
 
@@ -26,7 +26,7 @@ agent.initialize().then(async () => {
 
     const player = gameState.players[gameState.id];
 
-    const unitArchetypes = fullGeneralist(gameState);
+    const unitArchetypes = rushUranium(gameState);
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
