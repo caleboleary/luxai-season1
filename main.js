@@ -11,7 +11,7 @@ const { fullGeneralist, rushCoal, rushUranium } = require("./plays");
 const logs = [];
 
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
-agent.initialize().then(async () => {
+agent.initialize().then(async() => {
   while (true) {
     /** Do not edit! **/
     // wait for updates
@@ -26,7 +26,7 @@ agent.initialize().then(async () => {
 
     const player = gameState.players[gameState.id];
 
-    const unitArchetypes = rushUranium(gameState);
+    const unitArchetypes = rushCoal(gameState);
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
