@@ -6,10 +6,9 @@ const { getCountOwnedCityTiles } = require("./observations");
 const { initializeLiveMap } = require("./utils");
 
 const { generalist, collector, expander, builder } = require("./archetypes");
+const { fullGeneralist } = require("./plays");
 
 const logs = [];
-
-const unitArchetypes = {};
 
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
 agent.initialize().then(async () => {
@@ -27,24 +26,11 @@ agent.initialize().then(async () => {
 
     const player = gameState.players[gameState.id];
 
-    player.units.forEach((unit, index) => {
-      // if (!unitArchetypes.hasOwnProperty(unit.id)) {
-      // unitArchetypes[unit.id] =
-      //   index % 2 || player.units.length == 1 ? generalist : collector;
-      if (player.cities.size < 1) {
-        unitArchetypes[unit.id] = generalist;
-      } else {
-        unitArchetypes[unit.id] =
-          unit.getCargoSpaceLeft() > 0 ? collector : expander;
-      }
-
-      // }
-    });
+    const unitArchetypes = fullGeneralist(gameState);
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
-      // unitArchetypes[unit.id](unit, gameState);
-      generalist(unit, gameState);
+      unitArchetypes[unit.id](unit, gameState);
     });
 
     const citiesArr = Object.values(Object.fromEntries(player.cities));
