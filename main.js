@@ -5,7 +5,7 @@ const fs = require("fs");
 const { getCountOwnedCityTiles } = require("./observations");
 const { initializeLiveMap } = require("./utils");
 
-const { generalist, collector, expander } = require("./archetypes");
+const { generalist, collector, expander, builder } = require("./archetypes");
 
 const logs = [];
 
