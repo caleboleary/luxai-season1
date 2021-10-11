@@ -71,6 +71,50 @@ const getNearestUnclaimedEmptyTile = (unit, gameState) => {
   return closestEmptyTile;
 };
 
+const getNearestUnclaimedEmptyTileOrthogonalToCity = (unit, gameState) => {
+  const emptyTiles = getAllEmptyTiles(gameState);
+
+  let closestEmptyTile = null;
+  let closestDist = 9999999;
+  emptyTiles
+    .filter((eT) => {
+      if (
+        gameState.liveMap.map[eT.pos.y][eT.pos.x].playerUnits ||
+        gameState.liveMap.map[eT.pos.y][eT.pos.x].opponentUnits
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .filter((eT) => {
+      if (
+        (eT.pos.x < gameState.map.width - 1 &&
+          gameState.map.map[eT.pos.x + 1][eT.pos.y]?.citytile?.team ===
+            gameState.id) ||
+        (eT.pos.x > 0 &&
+          gameState.map.map[eT.pos.x - 1][eT.pos.y]?.citytile?.team ===
+            gameState.id) ||
+        (eT.pos.y < gameState.map.height - 1 &&
+          gameState.map.map[eT.pos.x][eT.pos.y + 1]?.citytile?.team ===
+            gameState.id) ||
+        (eT.pos.y > 0 &&
+          gameState.map.map[eT.pos.x][eT.pos.y - 1]?.citytile?.team ===
+            gameState.id)
+      ) {
+        return true;
+      }
+      return false;
+    })
+    .forEach((cell) => {
+      const dist = cell.pos.distanceTo(unit.pos);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestEmptyTile = cell;
+      }
+    });
+  return closestEmptyTile;
+};
+
 const getClosestUnclaimedCityTileNeedingFuel = (unit, gameState) => {
   const player = gameState.players[gameState.id];
 
@@ -191,6 +235,7 @@ module.exports = {
   getIsUnitCurrentlySharingTileWithOtherUnit,
   getClosestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
+  getNearestUnclaimedEmptyTileOrthogonalToCity,
   getClosestUnclaimedCityTileNeedingFuel,
   getClosestCityTileWithLeastFuel,
   getAllEmptyTiles,

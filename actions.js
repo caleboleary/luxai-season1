@@ -8,6 +8,7 @@ const {
 const {
   getClosestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
+  getNearestUnclaimedEmptyTileOrthogonalToCity,
   getClosestUnclaimedCityTileNeedingFuel,
   getClosestCityTileWithLeastFuel,
   getAllEmptyTiles,
@@ -160,6 +161,41 @@ const moveToNearestEmptyTile = (unit, gameState) => {
   }
 };
 
+const moveToNearestEmptyTileOrthogonalToCity = (unit, gameState) => {
+  const nearestEmptyTile = getNearestUnclaimedEmptyTileOrthogonalToCity(
+    unit,
+    gameState
+  );
+  if (nearestEmptyTile) {
+    const nextStepPosition = getNextStepTowardDestinationViaPathfinding(
+      unit,
+      gameState,
+      nearestEmptyTile
+    );
+    if (!nextStepPosition) return; //if no path, return (do nothing)
+
+    const dir = unit.pos.directionTo(
+      gameState.map.getCell(nextStepPosition[0], nextStepPosition[1]).pos
+    );
+    gameState.actions.push(unit.move(dir));
+    unitLog(
+      unit,
+      gameState,
+      `heading to nearest empty tile, which is at  [${nearestEmptyTile.pos.x},${nearestEmptyTile.pos.y}] - moving ${dir} to  [${nextStepPosition[0]},${nextStepPosition[1]}]`
+    );
+
+    //update the map to reflect this decided move
+    const newPosition = modelPosMoveByDirection(unit.pos, dir);
+    updateUnitPositionInLiveMap(unit, gameState, newPosition);
+  } else {
+    unitLog(
+      unit,
+      gameState,
+      "BAD ERROR - no empty tiles orthogonal to cities all?? doing nothing."
+    );
+  }
+};
+
 const moveRandomDirection = (unit, gameState) => {
   //pick a random tile anywhere and make 1 step towards it - using this ensures random moves don't cause self colissions
   const emptyTiles = getAllEmptyTiles(gameState);
@@ -207,5 +243,6 @@ module.exports = {
   goToNearestCityNeedingFuel,
   buildCity,
   moveToNearestEmptyTile,
+  moveToNearestEmptyTileOrthogonalToCity,
   moveRandomDirection,
 };

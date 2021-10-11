@@ -5,8 +5,7 @@ const fs = require("fs");
 const { getCountOwnedCityTiles } = require("./observations");
 const { initializeLiveMap } = require("./utils");
 
-const { generalist } = require("./archetypes/generalist");
-const { collector } = require("./archetypes/collector");
+const { generalist, collector, expander } = require("./archetypes");
 
 const logs = [];
 
@@ -29,16 +28,17 @@ agent.initialize().then(async () => {
     const player = gameState.players[gameState.id];
 
     player.units.forEach((unit, index) => {
-      if (!unitArchetypes.hasOwnProperty(unit.id)) {
-        unitArchetypes[unit.id] =
-          index % 2 || player.units.length == 1 ? generalist : collector;
-      }
+      // if (!unitArchetypes.hasOwnProperty(unit.id)) {
+      // unitArchetypes[unit.id] =
+      //   index % 2 || player.units.length == 1 ? generalist : collector;
+      unitArchetypes[unit.id] =
+        unit.getCargoSpaceLeft() > 0 ? collector : expander;
+      // }
     });
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
-      // unitArchetypes[unit.id](unit, gameState);
-      generalist(unit, gameState);
+      unitArchetypes[unit.id](unit, gameState);
     });
 
     const citiesArr = Object.values(Object.fromEntries(player.cities));
