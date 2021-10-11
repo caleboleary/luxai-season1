@@ -23,6 +23,7 @@
     "homepage": "https://github.com/caleboleary/luxai-season1#readme",
     "dependencies": {
         "@lux-ai/2021-challenge": "^3.1.0",
-        "pathfinding": "^0.4.18"
+        "pathfinding": "^0.4.18",
+        "watch-cli": "^0.2.3"
     }
 }
