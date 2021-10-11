@@ -2,6 +2,7 @@
 const {
   getIsUnitCurrentlySharingTileWithOtherUnit,
   getCanUnitBuildCityRightNow,
+  getIsPositionOrthogonalToAnyCity,
 } = require("../observations.js");
 
 const {
@@ -16,11 +17,12 @@ const expander = (unit, gameState) => {
   if (getIsUnitCurrentlySharingTileWithOtherUnit(unit, gameState)) {
     moveRandomDirection(unit, gameState);
   } else if (unit.isWorker() && unit.canAct()) {
-    if (getCanUnitBuildCityRightNow(unit, gameState)) {
+    if (
+      getCanUnitBuildCityRightNow(unit, gameState) &&
+      getIsPositionOrthogonalToAnyCity(unit.pos, gameState)
+    ) {
       buildCity(unit, gameState);
     } else {
-      //move to nearest empty tile
-      //   moveToNearestEmptyTile(unit, gameState);
       moveToNearestEmptyTileOrthogonalToCity(unit, gameState);
     }
   }

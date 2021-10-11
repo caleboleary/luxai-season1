@@ -87,31 +87,23 @@ const getNearestUnclaimedEmptyTileOrthogonalToCity = (unit, gameState) => {
       return true;
     })
     .filter((eT) => {
-      if (
-        (eT.pos.x < gameState.map.width - 1 &&
-          gameState.map.map[eT.pos.x + 1][eT.pos.y]?.citytile?.team ===
-            gameState.id) ||
-        (eT.pos.x > 0 &&
-          gameState.map.map[eT.pos.x - 1][eT.pos.y]?.citytile?.team ===
-            gameState.id) ||
-        (eT.pos.y < gameState.map.height - 1 &&
-          gameState.map.map[eT.pos.x][eT.pos.y + 1]?.citytile?.team ===
-            gameState.id) ||
-        (eT.pos.y > 0 &&
-          gameState.map.map[eT.pos.x][eT.pos.y - 1]?.citytile?.team ===
-            gameState.id)
-      ) {
+      if (getIsPositionOrthogonalToAnyCity(eT.pos, gameState)) {
         return true;
       }
       return false;
     })
     .forEach((cell) => {
       const dist = cell.pos.distanceTo(unit.pos);
+      cell.dist = dist;
       if (dist < closestDist) {
         closestDist = dist;
         closestEmptyTile = cell;
       }
     });
+  if (gameState.turn === 2) {
+    gameState.logs.push(JSON.stringify(closestEmptyTile));
+    gameState.logs.push(JSON.stringify(emptyTiles));
+  }
   return closestEmptyTile;
 };
 
@@ -231,6 +223,26 @@ const getOpponentCityTileCount = (gameState) => {
   return getCountOwnedCityTiles(citiesArr);
 };
 
+const getIsPositionOrthogonalToAnyCity = (position, gameState) => {
+  if (
+    (position.x < gameState.map.width - 1 &&
+      gameState.map.getCell(position.x + 1, position.y)?.citytile?.team ===
+        gameState.id) ||
+    (position.x > 0 &&
+      gameState.map.getCell(position.x - 1, position.y)?.citytile?.team ===
+        gameState.id) ||
+    (position.y < gameState.map.height - 1 &&
+      gameState.map.getCell(position.x, position.y + 1)?.citytile?.team ===
+        gameState.id) ||
+    (position.y > 0 &&
+      gameState.map.getCell(position.x, position.y - 1)?.citytile?.team ===
+        gameState.id)
+  ) {
+    return true;
+  }
+  return false;
+};
+
 module.exports = {
   getIsUnitCurrentlySharingTileWithOtherUnit,
   getClosestUnclaimedResourceTile,
@@ -245,4 +257,5 @@ module.exports = {
   getCanUnitBuildCityRightNow,
   getMyCityTileCount,
   getOpponentCityTileCount,
+  getIsPositionOrthogonalToAnyCity,
 };

@@ -181,7 +181,7 @@ const moveToNearestEmptyTileOrthogonalToCity = (unit, gameState) => {
     unitLog(
       unit,
       gameState,
-      `heading to nearest empty tile, which is at  [${nearestEmptyTile.pos.x},${nearestEmptyTile.pos.y}] - moving ${dir} to  [${nextStepPosition[0]},${nextStepPosition[1]}]`
+      `heading to nearest empty city-adjacent tile, which is at  [${nearestEmptyTile.pos.x},${nearestEmptyTile.pos.y}] - moving ${dir} to  [${nextStepPosition[0]},${nextStepPosition[1]}]`
     );
 
     //update the map to reflect this decided move

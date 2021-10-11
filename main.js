@@ -31,8 +31,13 @@ agent.initialize().then(async () => {
       // if (!unitArchetypes.hasOwnProperty(unit.id)) {
       // unitArchetypes[unit.id] =
       //   index % 2 || player.units.length == 1 ? generalist : collector;
-      unitArchetypes[unit.id] =
-        unit.getCargoSpaceLeft() > 0 ? collector : expander;
+      if (player.cities.size < 1) {
+        unitArchetypes[unit.id] = generalist;
+      } else {
+        unitArchetypes[unit.id] =
+          unit.getCargoSpaceLeft() > 0 ? collector : expander;
+      }
+
       // }
     });
 
