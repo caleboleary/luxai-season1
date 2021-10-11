@@ -35,7 +35,12 @@ const generalist = (unit, gameState) => {
         }
       } else {
         //if no cities, try to build one? Hopefully someone can!
-        buildCity(unit, gameState);
+        if (getCanUnitBuildCityRightNow(unit, gameState)) {
+          buildCity(unit, gameState);
+        } else {
+          //move to nearest empty tile
+          moveToNearestEmptyTile(unit, gameState);
+        }
       }
     }
   }

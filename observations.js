@@ -168,7 +168,8 @@ const getCanUnitBuildCityRightNow = (unit, gameState) => {
   return (
     unit.canBuild(gameState.map) &&
     unit.canAct() &&
-    unit.getCargoSpaceLeft() < 1
+    unit.getCargoSpaceLeft() < 1 &&
+    !gameState.map.getCell(unit.pos.x, unit.pos.y).hasResource()
   );
 };
 
