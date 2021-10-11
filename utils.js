@@ -22,7 +22,10 @@ const randomIntFromInterval = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-const transformMapIntoObstacleMatrixNotation = (gameState) => {
+const transformMapIntoObstacleMatrixNotation = (
+  gameState,
+  doOwnCitiesBlock = true
+) => {
   let matrix = [];
 
   for (let y = 0; y < gameState.liveMap.height; y++) {
@@ -31,7 +34,10 @@ const transformMapIntoObstacleMatrixNotation = (gameState) => {
       const cell = gameState.liveMap.map[y][x];
 
       const isCellBlocked =
-        !!cell.citytile || !!cell.playerUnits || !!cell.opponentUnits;
+        cell.citytile?.team === (gameState.id + 1) % 2 ||
+        !!cell.playerUnits ||
+        !!cell.opponentUnits ||
+        (doOwnCitiesBlock && cell.citytile?.team === gameState.id);
 
       row.push(isCellBlocked ? 1 : 0);
     }
@@ -91,17 +97,11 @@ const updateUnitPositionInLiveMap = (unit, gameState, newPosition) => {
 const getNextStepTowardDestinationViaPathfinding = (
   unit,
   gameState,
-  destination
+  destination,
+  canTraverseOwnCities = false
 ) => {
-  if (gameState.turn === 20 && unit.id === "u_3") {
-    gameState.logs.push(
-      JSON.stringify(transformMapIntoObstacleMatrixNotation(gameState))
-    );
-    gameState.logs.push(JSON.stringify(unit));
-  }
-
   const pathfindingGrid = new PF.Grid(
-    transformMapIntoObstacleMatrixNotation(gameState)
+    transformMapIntoObstacleMatrixNotation(gameState, !canTraverseOwnCities)
   ); //make pathfinding grid
   pathfindingGrid.setWalkableAt(unit.pos.x, unit.pos.y, true); //set current tile walkable
   pathfindingGrid.setWalkableAt(destination.pos.x, destination.pos.y, true); //set destination walkable

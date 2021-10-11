@@ -4,7 +4,10 @@
   "description": "to zip for upload upload:",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tournament": "lux-ai-2021 main.js ../luxv2/main.js --rankSystem=\"trueskill\" --tournament --storeReplay=false --storeLogs=false --maxConcurrentMatches=2",
+    "battle": "lux-ai-2021 main.js ../luxv2/main.js",
+    "zip": "tar -czvf submission.tar.gz lux/* main.py main.js actions.js observations.js utils.js archetypes/* CONFIG.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +20,7 @@
   },
   "homepage": "https://github.com/caleboleary/luxai-season1#readme",
   "dependencies": {
+    "@lux-ai/2021-challenge": "^3.1.0",
     "pathfinding": "^0.4.18"
   }
 }

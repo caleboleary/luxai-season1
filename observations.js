@@ -1,4 +1,5 @@
 const GAME_CONSTANTS = require("./lux/game_constants");
+const CONFIG = require("./CONFIG");
 
 const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, gameState) => {
   const player = gameState.players[gameState.id];
@@ -155,7 +156,12 @@ const getDoAnyCitiesNeedFuel = (gameState) => {
   const player = gameState.players[gameState.id];
 
   const cities = Object.values(Object.fromEntries(player.cities));
-  return cities.filter((city) => city.lightUpkeep * 15 > city.fuel).length > 0;
+  return (
+    cities.filter((city) => {
+      if (gameState.turn > 320) return city.lightUpkeep * 10 > city.fuel; //if we're in the last day, we only need fuel enough for the last night, no extra
+      return city.lightUpkeep * (10 * CONFIG.CITY_HUNGER_BUFFER) > city.fuel; //"need fuel" defined as enough for next night and half of following
+    }).length > 0
+  );
 };
 
 const getCanUnitBuildCityRightNow = (unit, gameState) => {

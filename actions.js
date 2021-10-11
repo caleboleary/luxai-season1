@@ -27,7 +27,8 @@ const goToNearestMineableResource = (unit, gameState) => {
   const nextStepPosition = getNextStepTowardDestinationViaPathfinding(
     unit,
     gameState,
-    closestUnclaimedResourceTile
+    closestUnclaimedResourceTile,
+    true //allow units to walk over own cities to get to resources
   );
   if (!nextStepPosition) return; //if no path, return (do nothing)
 
