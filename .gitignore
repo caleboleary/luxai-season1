@@ -3,3 +3,4 @@ logs.txt
 errorlogs
 replays
 node_modules
+.DS_Store

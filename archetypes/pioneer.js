@@ -22,7 +22,11 @@ const pioneer = (unit, gameState) => {
   } else if (unit.isWorker() && unit.canAct()) {
     if (unit.getCargoSpaceLeft() > 0) {
       // if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
-      goToLargestResourceCluster(unit, gameState);
+      if (gameState.turn % 40 < 20) {
+        goToLargestResourceCluster(unit, gameState);
+      } else {
+        goToNearestMineableResource(unit, gameState);
+      }
     } else {
       // if unit is a worker and there is no cargo space left, and we have cities, lets return to them
       if (player.cities.size > 0) {
