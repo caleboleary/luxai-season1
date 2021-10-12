@@ -12,6 +12,8 @@ const {
   getClosestUnclaimedCityTileNeedingFuel,
   getClosestCityTileWithLeastFuel,
   getAllEmptyTiles,
+  getLargestResourceCluster,
+  getNearestCellInResourceCluster,
 } = require("./observations.js");
 
 const goToNearestMineableResource = (unit, gameState) => {
@@ -238,6 +240,37 @@ const moveRandomDirection = (unit, gameState) => {
   updateUnitPositionInLiveMap(unit, gameState, newPosition);
 };
 
+const goToLargestResourceCluster = (unit, gameState) => {
+  const target = getNearestCellInResourceCluster(
+    unit,
+    gameState,
+    getLargestResourceCluster(gameState)
+  );
+
+  const nextStepPosition = getNextStepTowardDestinationViaPathfinding(
+    unit,
+    gameState,
+    target
+  );
+  if (!nextStepPosition) return; //if no path, return (do nothing)
+
+  const dir = unit.pos.directionTo(
+    gameState.map.getCell(nextStepPosition[0], nextStepPosition[1]).pos
+  );
+
+  unitLog(
+    unit,
+    gameState,
+    `moving towards largest resource cluster (${dir} to  [${nextStepPosition[0]},${nextStepPosition[1]}])`
+  );
+
+  gameState.actions.push(unit.move(dir));
+
+  //update the map to reflect this decided move
+  const newPosition = modelPosMoveByDirection(unit.pos, dir);
+  updateUnitPositionInLiveMap(unit, gameState, newPosition);
+};
+
 module.exports = {
   goToNearestMineableResource,
   goToNearestCityNeedingFuel,
@@ -245,4 +278,5 @@ module.exports = {
   moveToNearestEmptyTile,
   moveToNearestEmptyTileOrthogonalToCity,
   moveRandomDirection,
+  goToLargestResourceCluster,
 };

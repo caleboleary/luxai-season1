@@ -122,6 +122,36 @@ const unitLog = (unit, gameState, message) => {
   gameState.logs.push(`turn:${gameState.turn} unit:${unit.id} - ${message}`);
 };
 
+//depth first search modified from example at https://www.geeksforgeeks.org/find-number-of-islands/
+const DFS = (row, col, visited, gameState, cluster) => {
+  const width = gameState.map.width;
+  const height = gameState.map.height;
+  // These arrays are used to get row and column numbers
+  // of 4 neighbors of a given cell
+  let rowNbr = [1, -1, 0, 0];
+  let colNbr = [0, 0, 1, -1];
+
+  // Mark this cell as visited
+  visited[row][col] = true;
+  cluster.push({ x: col, y: row });
+
+  // Recur for all connected neighbours
+  for (let k = 0; k < 4; k++) {
+    const newRow = row + rowNbr[k];
+    const newCol = col + colNbr[k];
+    if (
+      newRow >= 0 &&
+      newRow < height &&
+      newCol >= 0 &&
+      newCol < width &&
+      !!gameState.map.getCell(newCol, newRow).resource &&
+      !visited[newRow][newCol]
+    ) {
+      DFS(newRow, newCol, visited, gameState, cluster);
+    }
+  }
+};
+
 module.exports = {
   getPositionHash,
   modelPosMoveByDirection,
@@ -131,4 +161,5 @@ module.exports = {
   updateUnitPositionInLiveMap,
   getNextStepTowardDestinationViaPathfinding,
   unitLog,
+  DFS,
 };

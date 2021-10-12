@@ -2,16 +2,25 @@ const kit = require("./lux/kit");
 const agent = new kit.Agent();
 const fs = require("fs");
 
-const { getCountOwnedCityTiles } = require("./observations");
+const {
+  getCountOwnedCityTiles,
+  getAllResourceClusters,
+} = require("./observations");
 const { initializeLiveMap } = require("./utils");
 
 const { generalist, collector, expander, builder } = require("./archetypes");
-const { fullGeneralist, rushCoal, rushUranium } = require("./plays");
+const {
+  fullGeneralist,
+  rushCoal,
+  rushUranium,
+  rushCoalThenMaintainSmallLead,
+  halfPioneers,
+} = require("./plays");
 
 const logs = [];
 
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
-agent.initialize().then(async() => {
+agent.initialize().then(async () => {
   while (true) {
     /** Do not edit! **/
     // wait for updates
@@ -24,9 +33,13 @@ agent.initialize().then(async() => {
     gameState.liveMap = initializeLiveMap(gameState); //clone of map that we updated with chosen moves
     /** AI Code Goes Below! **/
 
+    if (logs.length === 0) {
+      logs.push(JSON.stringify(getAllResourceClusters(gameState)));
+    }
+
     const player = gameState.players[gameState.id];
 
-    const unitArchetypes = rushCoal(gameState);
+    const unitArchetypes = halfPioneers(gameState);
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {

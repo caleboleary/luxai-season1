@@ -1,5 +1,6 @@
 const GAME_CONSTANTS = require("./lux/game_constants");
 const CONFIG = require("./CONFIG");
+const { DFS } = require("./utils");
 
 const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, gameState) => {
   const player = gameState.players[gameState.id];
@@ -225,22 +226,74 @@ const getOpponentCityTileCount = (gameState) => {
 
 const getIsPositionOrthogonalToAnyCity = (position, gameState) => {
   if (
-    (position.x < gameState.map.width - 1 &&
+    (position.x < gameState.map.width &&
       gameState.map.getCell(position.x + 1, position.y)?.citytile?.team ===
         gameState.id) ||
-    (position.x > 0 &&
+    (position.x >= 0 &&
       gameState.map.getCell(position.x - 1, position.y)?.citytile?.team ===
         gameState.id) ||
-    (position.y < gameState.map.height - 1 &&
+    (position.y < gameState.map.height &&
       gameState.map.getCell(position.x, position.y + 1)?.citytile?.team ===
         gameState.id) ||
-    (position.y > 0 &&
+    (position.y >= 0 &&
       gameState.map.getCell(position.x, position.y - 1)?.citytile?.team ===
         gameState.id)
   ) {
     return true;
   }
   return false;
+};
+
+const getAllResourceClusters = (gameState) => {
+  const visitedArr = Array.from({ length: gameState.map.height }, (e) =>
+    Array(gameState.map.width).fill(0)
+  ); //visited tracker for DFS
+
+  let clusters = [];
+  for (let y = 0; y < gameState.map.height; y++) {
+    for (let x = 0; x < gameState.map.width; x++) {
+      if (!!gameState.map.getCell(x, y).resource && !visitedArr[y][x]) {
+        // value 1 is not
+        // visited yet, then new cluster found, Visit all
+        // cells in this cluster and add to list
+        let cluster = [];
+        DFS(y, x, visitedArr, gameState, cluster);
+        clusters.push(cluster);
+      }
+    }
+  }
+
+  return clusters;
+};
+
+const getLargestResourceCluster = (gameState) => {
+  const resourceClusters = getAllResourceClusters(gameState);
+
+  let largestCluster = resourceClusters[0];
+
+  for (let i = 1; i < resourceClusters.length; i++) {
+    if (resourceClusters[i].length > largestCluster.length) {
+      largestCluster = resourceClusters[i];
+    }
+  }
+
+  return largestCluster;
+};
+
+const getNearestCellInResourceCluster = (unit, gameState, resourceCluster) => {
+  let closestDist = 999999;
+  let closestCell = null;
+
+  resourceCluster.forEach((resourceCell) => {
+    const cell = gameState.map.getCell(resourceCell.x, resourceCell.y);
+    const dist = cell.pos.distanceTo(unit.pos);
+    if (dist < closestDist) {
+      closestCell = cell;
+      closestDist = dist;
+    }
+  });
+
+  return closestCell;
 };
 
 module.exports = {
@@ -258,4 +311,7 @@ module.exports = {
   getMyCityTileCount,
   getOpponentCityTileCount,
   getIsPositionOrthogonalToAnyCity,
+  getAllResourceClusters,
+  getLargestResourceCluster,
+  getNearestCellInResourceCluster,
 };
