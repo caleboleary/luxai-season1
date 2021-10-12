@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/caleboleary/luxai-season1#readme",
   "dependencies": {
-    "@lux-ai/2021-challenge": "^3.1.0",
     "nodemon": "^2.0.13",
     "npm-cli": "^0.1.0",
     "pathfinding": "^0.4.18"
