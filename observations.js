@@ -1,6 +1,5 @@
 const GAME_CONSTANTS = require("./lux/game_constants");
 const CONFIG = require("./CONFIG");
-const { DFS } = require("./utils");
 
 const getIsUnitCurrentlySharingTileWithOtherUnit = (unit, gameState) => {
   const player = gameState.players[gameState.id];
@@ -244,6 +243,61 @@ const getIsPositionOrthogonalToAnyCity = (position, gameState) => {
   return false;
 };
 
+const getDoesCellHaveMineableResource = (gameState, cell) => {
+  const player = gameState.players[gameState.id];
+
+  if (
+    cell.resource?.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL &&
+    player.researchPoints >= 50
+  ) {
+    return true;
+  }
+  if (
+    cell.resource?.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM &&
+    player.researchPoints >= 200
+  ) {
+    return true;
+  }
+  if (cell.resource?.type === GAME_CONSTANTS.RESOURCE_TYPES.WOOD) {
+    return true;
+  }
+  return false;
+};
+
+//depth first search modified from example at https://www.geeksforgeeks.org/find-number-of-islands/
+const DFS = (row, col, visited, gameState, cluster) => {
+  gameState.logs.push(getDoesCellHaveMineableResource);
+  const width = gameState.map.width;
+  const height = gameState.map.height;
+  // These arrays are used to get row and column numbers
+  // of 4 neighbors of a given cell
+  let rowNbr = [1, -1, 0, 0];
+  let colNbr = [0, 0, 1, -1];
+
+  // Mark this cell as visited
+  visited[row][col] = true;
+  cluster.push({ x: col, y: row });
+
+  // Recur for all connected neighbours
+  for (let k = 0; k < 4; k++) {
+    const newRow = row + rowNbr[k];
+    const newCol = col + colNbr[k];
+    if (
+      newRow >= 0 &&
+      newRow < height &&
+      newCol >= 0 &&
+      newCol < width &&
+      getDoesCellHaveMineableResource(
+        gameState,
+        gameState.map.getCell(newCol, newRow)
+      ) &&
+      !visited[newRow][newCol]
+    ) {
+      DFS(newRow, newCol, visited, gameState, cluster);
+    }
+  }
+};
+
 const getAllResourceClusters = (gameState) => {
   const visitedArr = Array.from({ length: gameState.map.height }, (e) =>
     Array(gameState.map.width).fill(0)
@@ -252,7 +306,13 @@ const getAllResourceClusters = (gameState) => {
   let clusters = [];
   for (let y = 0; y < gameState.map.height; y++) {
     for (let x = 0; x < gameState.map.width; x++) {
-      if (!!gameState.map.getCell(x, y).resource && !visitedArr[y][x]) {
+      if (
+        getDoesCellHaveMineableResource(
+          gameState,
+          gameState.map.getCell(x, y)
+        ) &&
+        !visitedArr[y][x]
+      ) {
         // value 1 is not
         // visited yet, then new cluster found, Visit all
         // cells in this cluster and add to list
@@ -278,6 +338,27 @@ const getLargestResourceCluster = (gameState) => {
   }
 
   return largestCluster;
+};
+
+const getLargestNearestResourceCluster = (unit, gameState) => {
+  const resourceClusters = getAllResourceClusters(gameState);
+
+  let bestCluster = null;
+  let bestClusterScore = 999999;
+
+  for (let i = 1; i < resourceClusters.length; i++) {
+    const nearestCellInCluster = getNearestCellInResourceCluster(
+      unit,
+      gameState,
+      resourceClusters[i]
+    );
+    const dist = nearestCellInCluster.pos.distanceTo(unit.pos);
+    if (resourceClusters[i].length / dist < bestClusterScore) {
+      bestCluster = resourceClusters[i];
+    }
+  }
+
+  return bestCluster;
 };
 
 const getNearestCellInResourceCluster = (unit, gameState, resourceCluster) => {
@@ -313,5 +394,7 @@ module.exports = {
   getIsPositionOrthogonalToAnyCity,
   getAllResourceClusters,
   getLargestResourceCluster,
+  getLargestNearestResourceCluster,
   getNearestCellInResourceCluster,
+  getDoesCellHaveMineableResource,
 };

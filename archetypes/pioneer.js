@@ -11,6 +11,7 @@ const {
   moveToNearestEmptyTile,
   moveRandomDirection,
   goToLargestResourceCluster,
+  goToLargestNearestResourceCluster,
 } = require("../actions.js");
 
 //pioneer = collects and builds near largest resource clusters
@@ -22,7 +23,8 @@ const pioneer = (unit, gameState) => {
   } else if (unit.isWorker() && unit.canAct()) {
     if (unit.getCargoSpaceLeft() > 0) {
       // if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
-      if (gameState.turn % 40 < 20) {
+      if (gameState.turn % 40 < 25) {
+        // goToLargestNearestResourceCluster(unit, gameState);
         goToLargestResourceCluster(unit, gameState);
       } else {
         goToNearestMineableResource(unit, gameState);
