@@ -266,7 +266,6 @@ const getDoesCellHaveMineableResource = (gameState, cell) => {
 
 //depth first search modified from example at https://www.geeksforgeeks.org/find-number-of-islands/
 const DFS = (row, col, visited, gameState, cluster) => {
-  gameState.logs.push(getDoesCellHaveMineableResource);
   const width = gameState.map.width;
   const height = gameState.map.height;
   // These arrays are used to get row and column numbers
@@ -340,6 +339,43 @@ const getLargestResourceCluster = (gameState) => {
   return largestCluster;
 };
 
+const getLargestResourceClusterWithinRange = (unit, gameState) => {
+  const turnsUntilNight = 30 - (gameState.turn % 40);
+  const numberNightsCapableSurvive = Math.floor(
+    (100 - unit.getCargoSpaceLeft()) / 10
+  );
+  const range =
+    Math.floor(turnsUntilNight / 2) +
+    Math.floor(numberNightsCapableSurvive / 2);
+
+  const resourceClusters = getAllResourceClusters(gameState).filter(
+    (cluster) => {
+      const nearestCellInCluster = getNearestCellInResourceCluster(
+        unit,
+        gameState,
+        cluster
+      );
+
+      const dist = nearestCellInCluster.pos.distanceTo(unit.pos);
+
+      if (dist <= range) return true;
+      return false;
+    }
+  );
+
+  if (!resourceClusters?.length) return null;
+
+  let largestCluster = resourceClusters[0];
+
+  for (let i = 1; i < resourceClusters.length; i++) {
+    if (resourceClusters[i].length > largestCluster.length) {
+      largestCluster = resourceClusters[i];
+    }
+  }
+
+  return largestCluster;
+};
+
 const getLargestNearestResourceCluster = (unit, gameState) => {
   const resourceClusters = getAllResourceClusters(gameState);
 
@@ -354,7 +390,7 @@ const getLargestNearestResourceCluster = (unit, gameState) => {
     );
     if (!nearestCellInCluster) continue;
     const dist = nearestCellInCluster.pos.distanceTo(unit.pos);
-    if (resourceClusters[i].length / dist > bestClusterScore) {
+    if (resourceClusters[i].length / (dist / 1000) > bestClusterScore) {
       bestCluster = resourceClusters[i];
     }
   }
@@ -398,4 +434,5 @@ module.exports = {
   getLargestNearestResourceCluster,
   getNearestCellInResourceCluster,
   getDoesCellHaveMineableResource,
+  getLargestResourceClusterWithinRange,
 };

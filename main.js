@@ -15,6 +15,7 @@ const {
   rushUranium,
   rushCoalThenMaintainSmallLead,
   halfPioneers,
+  fullPioneers,
 } = require("./plays");
 
 const logs = [];
@@ -32,10 +33,6 @@ agent.initialize().then(async () => {
     gameState.logs = logs;
     gameState.liveMap = initializeLiveMap(gameState); //clone of map that we updated with chosen moves
     /** AI Code Goes Below! **/
-
-    if (logs.length === 0) {
-      logs.push(JSON.stringify(getAllResourceClusters(gameState)));
-    }
 
     const player = gameState.players[gameState.id];
 

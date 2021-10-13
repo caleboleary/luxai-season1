@@ -7,9 +7,10 @@ const halfPioneers = (gameState) => {
 
   player.units.forEach((unit, index) => {
     if (player.researchPoints < 50) {
+      gameState.logs.push("test???");
       unitArchetypes = rushCoal(gameState);
     } else {
-      if (index === 1 || index % 2 === 0) {
+      if (index === 0 || index % 2 === 0) {
         unitArchetypes[unit.id] = generalist;
       } else {
         unitArchetypes[unit.id] = pioneer;

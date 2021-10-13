@@ -12,10 +12,13 @@ const {
   moveRandomDirection,
 } = require("../actions.js");
 
+const { unitLog } = require("../utils.js");
+
 //builder = collects resources, builds cities, repeat
 const builder = (unit, gameState) => {
   const player = gameState.players[gameState.id];
 
+  unitLog(unit, gameState, "playing as BUILDER");
   if (getIsUnitCurrentlySharingTileWithOtherUnit(unit, gameState)) {
     moveRandomDirection(unit, gameState);
   } else if (unit.isWorker() && unit.canAct()) {

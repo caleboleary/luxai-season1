@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tournament": "lux-ai-2021 main.js ../luxv2/main.js --rankSystem=\"wins\" --tournament --storeReplay=false  --maxConcurrentMatches=1",
+    "tournament": "lux-ai-2021 main.js ../luxv2/main.js --rankSystem=\"wins\" --tournament --storeReplay=false --storeLogs=false --maxConcurrentMatches=2",
     "battle": "lux-ai-2021 main.js ../luxv2/main.js",
     "zip": "tar -czvf submission.tar.gz lux/* main.py main.js actions.js observations.js utils.js archetypes/* CONFIG.js node_modules/* plays/*",
     "debug": "lux-ai-2021 main.js ../luxv2/main.js --loglevel 2 --storeLogs false --out replays/replay.json --seed 93543194",

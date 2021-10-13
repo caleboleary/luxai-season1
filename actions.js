@@ -15,6 +15,7 @@ const {
   getLargestResourceCluster,
   getLargestNearestResourceCluster,
   getNearestCellInResourceCluster,
+  getLargestResourceClusterWithinRange,
 } = require("./observations.js");
 
 const goToNearestMineableResource = (unit, gameState) => {
@@ -245,7 +246,7 @@ const goToLargestResourceCluster = (unit, gameState) => {
   const target = getNearestCellInResourceCluster(
     unit,
     gameState,
-    getLargestResourceCluster(gameState)
+    getLargestResourceClusterWithinRange(unit, gameState)
   );
   if (!target) return;
 

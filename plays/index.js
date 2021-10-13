@@ -5,6 +5,7 @@ const {
 } = require("./rushCoalThenMaintainSmallLead");
 const { rushUranium } = require("./rushUranium");
 const { halfPioneers } = require("./halfPioneers");
+const { fullPioneers } = require("./fullPioneers");
 
 module.exports = {
   fullGeneralist,
@@ -12,4 +13,5 @@ module.exports = {
   rushUranium,
   rushCoalThenMaintainSmallLead,
   halfPioneers,
+  fullPioneers,
 };
