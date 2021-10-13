@@ -278,6 +278,7 @@ const goToLargestNearestResourceCluster = (unit, gameState) => {
     gameState,
     getLargestNearestResourceCluster(unit, gameState)
   );
+  if (!target) return;
 
   const nextStepPosition = getNextStepTowardDestinationViaPathfinding(
     unit,

@@ -352,8 +352,9 @@ const getLargestNearestResourceCluster = (unit, gameState) => {
       gameState,
       resourceClusters[i]
     );
+    if (!nearestCellInCluster) continue;
     const dist = nearestCellInCluster.pos.distanceTo(unit.pos);
-    if (resourceClusters[i].length / dist < bestClusterScore) {
+    if (resourceClusters[i].length / dist > bestClusterScore) {
       bestCluster = resourceClusters[i];
     }
   }
@@ -365,7 +366,7 @@ const getNearestCellInResourceCluster = (unit, gameState, resourceCluster) => {
   let closestDist = 999999;
   let closestCell = null;
 
-  resourceCluster.forEach((resourceCell) => {
+  resourceCluster?.forEach((resourceCell) => {
     const cell = gameState.map.getCell(resourceCell.x, resourceCell.y);
     const dist = cell.pos.distanceTo(unit.pos);
     if (dist < closestDist) {
