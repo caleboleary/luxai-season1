@@ -25,7 +25,7 @@ const pioneer = (unit, gameState) => {
       // if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
       if (gameState.turn % 40 < 25) {
         // goToLargestNearestResourceCluster(unit, gameState);
-        goToLargestNearestResourceCluster(unit, gameState);
+        goToLargestResourceCluster(unit, gameState);
       } else {
         goToNearestMineableResource(unit, gameState);
       }
