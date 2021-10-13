@@ -7,6 +7,7 @@ const {
 } = require("./utils.js");
 const {
   getClosestUnclaimedResourceTile,
+  getFurthestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
   getNearestUnclaimedEmptyTileOrthogonalToCity,
   getClosestUnclaimedCityTileNeedingFuel,
@@ -14,11 +15,14 @@ const {
   getAllEmptyTiles,
 } = require("./observations.js");
 
-const goToNearestMineableResource = (unit, gameState) => {
-  const closestUnclaimedResourceTile = getClosestUnclaimedResourceTile(
-    unit,
-    gameState
-  );
+const goToNearestMineableResource = (unit, gameState, args={}) => {
+  let closestUnclaimedResourceTile = null;
+  if(args.spread){
+    //unit spreads to furthest resource from all other units
+    closestUnclaimedResourceTile = getFurthestUnclaimedResourceTile(unit, gameState);
+  }else{
+    closestUnclaimedResourceTile = getClosestUnclaimedResourceTile(unit, gameState);
+  }
 
   if (!closestUnclaimedResourceTile) {
     unitLog(unit, gameState, "no resources found, doing nothing.");

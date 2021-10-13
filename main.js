@@ -6,9 +6,14 @@ const { getCountOwnedCityTiles } = require("./observations");
 const { initializeLiveMap } = require("./utils");
 
 const { generalist, collector, expander, builder } = require("./archetypes");
-const { fullGeneralist, rushCoal, rushUranium } = require("./plays");
+const { fullGeneralist, rushCoal, rushUranium, spread } = require("./plays");
 
 const logs = [];
+
+//data that will persist through turns
+let globalStorage = {
+  units:{}
+} 
 
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
 agent.initialize().then(async() => {
@@ -22,11 +27,13 @@ agent.initialize().then(async() => {
     gameState.actions = actions;
     gameState.logs = logs;
     gameState.liveMap = initializeLiveMap(gameState); //clone of map that we updated with chosen moves
+    gameState.storage = globalStorage;
+    
     /** AI Code Goes Below! **/
-
+    
     const player = gameState.players[gameState.id];
 
-    const unitArchetypes = rushCoal(gameState);
+    const unitArchetypes = spread(gameState);
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
@@ -56,12 +63,17 @@ agent.initialize().then(async() => {
       console.log("wrote logs");
     });
 
+    //set global storage
+    globalStorage = JSON.parse(JSON.stringify(gameState.storage));
+
     /** AI Code Goes Above! **/
 
     /** Do not edit! **/
     console.log(actions.join(","));
     // end turn
     agent.endTurn();
+    //store globals
+    //globalUnits = gameState.globalUnits;
   }
 });
 

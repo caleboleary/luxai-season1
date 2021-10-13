@@ -20,23 +20,15 @@ const getClosestUnclaimedResourceTile = (unit, gameState) => {
     .filter((rT) => {
       if (
         gameState.liveMap.map[rT.pos.y][rT.pos.x].playerUnits ||
-        gameState.liveMap.map[rT.pos.y][rT.pos.x].opponentUnits
+        gameState.liveMap.map[rT.pos.y][rT.pos.x].opponentUnits ||
+        rT.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL && !player.researchedCoal() ||
+        rT.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM && !player.researchedUranium()
       ) {
         return false;
       }
       return true;
     })
     .forEach((cell) => {
-      if (
-        cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL &&
-        !player.researchedCoal()
-      )
-        return;
-      if (
-        cell.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM &&
-        !player.researchedUranium()
-      )
-        return;
       const dist = cell.pos.distanceTo(unit.pos);
       if (dist < closestDist) {
         closestDist = dist;
@@ -44,6 +36,50 @@ const getClosestUnclaimedResourceTile = (unit, gameState) => {
       }
     });
   return closestResourceTile;
+};
+
+//find furthest unclaimed resource for a spreading behavior
+const getFurthestUnclaimedResourceTile = (unit, gameState) => {
+  const player = gameState.players[gameState.id];
+  let furthestUnclaimedResourceTile = gameState.storage.units[unit.id]?.fixedTravelCell || null;
+  if(furthestUnclaimedResourceTile) return furthestUnclaimedResourceTile;
+console.error(unit.id)
+  const resourceTiles = getAllResourceTiles(gameState);
+  let furthestDist = 0;
+  resourceTiles
+    .filter((rT) => {
+      if (
+        gameState.liveMap.map[rT.pos.y][rT.pos.x].playerUnits ||
+        gameState.liveMap.map[rT.pos.y][rT.pos.x].opponentUnits ||
+        rT.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.COAL && !player.researchedCoal() ||
+        rT.resource.type === GAME_CONSTANTS.RESOURCE_TYPES.URANIUM && !player.researchedUranium()
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .forEach((resourceCell) => {
+      //find closest unit for each resource
+      const allUnits = [
+        ...gameState.players[gameState.id].units.map(u=>u.pos), //friendly units 
+        ...gameState.players[(gameState.id + 1) % 2].units.map(u=>u.pos) //opponent units
+      ];
+      let closestDistToAnyUnit = 9999999;
+      allUnits.forEach((allUnit)=>{
+        const dist = resourceCell.pos.distanceTo(allUnit);
+        if (dist < closestDistToAnyUnit) {
+          closestDistToAnyUnit = dist;
+        }
+      })
+      if (closestDistToAnyUnit > furthestDist) {
+        furthestDist = closestDistToAnyUnit;
+        furthestUnclaimedResourceTile = resourceCell;
+      }
+    });
+  //this locks in a fixed travel cell, so unit won't keep looking for the furthest resource and will find a destination and stay with it until arrival
+  unit.fixedTravelCell = furthestUnclaimedResourceTile;
+  gameState.storage.units[unit.id] = unit;
+  return furthestUnclaimedResourceTile;
 };
 
 const getNearestUnclaimedEmptyTile = (unit, gameState) => {
@@ -243,9 +279,14 @@ const getIsPositionOrthogonalToAnyCity = (position, gameState) => {
   return false;
 };
 
+const getUnitsTotalCargo = (unit) => {
+  return Object.values(unit.cargo).reduce((a, b) => a + b);
+};
+
 module.exports = {
   getIsUnitCurrentlySharingTileWithOtherUnit,
   getClosestUnclaimedResourceTile,
+  getFurthestUnclaimedResourceTile,
   getNearestUnclaimedEmptyTile,
   getNearestUnclaimedEmptyTileOrthogonalToCity,
   getClosestUnclaimedCityTileNeedingFuel,
@@ -258,4 +299,5 @@ module.exports = {
   getMyCityTileCount,
   getOpponentCityTileCount,
   getIsPositionOrthogonalToAnyCity,
+  getUnitsTotalCargo
 };
