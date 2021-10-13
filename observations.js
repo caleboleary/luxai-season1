@@ -225,16 +225,16 @@ const getOpponentCityTileCount = (gameState) => {
 
 const getIsPositionOrthogonalToAnyCity = (position, gameState) => {
   if (
-    (position.x < gameState.map.width &&
+    (position.x + 1 < gameState.map.width &&
       gameState.map.getCell(position.x + 1, position.y)?.citytile?.team ===
         gameState.id) ||
-    (position.x >= 0 &&
+    (position.x > 0 &&
       gameState.map.getCell(position.x - 1, position.y)?.citytile?.team ===
         gameState.id) ||
-    (position.y < gameState.map.height &&
+    (position.y + 1 < gameState.map.height &&
       gameState.map.getCell(position.x, position.y + 1)?.citytile?.team ===
         gameState.id) ||
-    (position.y >= 0 &&
+    (position.y > 0 &&
       gameState.map.getCell(position.x, position.y - 1)?.citytile?.team ===
         gameState.id)
   ) {
