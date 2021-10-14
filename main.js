@@ -16,6 +16,7 @@ const {
   rushCoalThenMaintainSmallLead,
   halfPioneers,
   fullPioneers,
+  rushCoalWith1EarlyPioneer,
 } = require("./plays");
 
 const logs = [];
@@ -36,7 +37,7 @@ agent.initialize().then(async () => {
 
     const player = gameState.players[gameState.id];
 
-    const unitArchetypes = halfPioneers(gameState);
+    const unitArchetypes = rushCoalWith1EarlyPioneer(gameState);
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
