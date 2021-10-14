@@ -14,6 +14,7 @@ const {
 
 //builder = collects resources, builds cities, repeat
 const builder = (unit, gameState) => {
+  unit.name = "builder";
   const player = gameState.players[gameState.id];
 
   if (getIsUnitCurrentlySharingTileWithOtherUnit(unit, gameState)) {

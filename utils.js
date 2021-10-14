@@ -86,9 +86,11 @@ const updateUnitPositionInLiveMap = (unit, gameState, newPosition) => {
 
   //remove unit from list at prev position
   const oldCell = gameState.liveMap.map[unit.pos.y][unit.pos.x];
-  oldCell.playerUnits = oldCell.playerUnits.filter((u) => u.id !== unit.id);
-  if (oldCell.playerUnits.length < 1) {
-    oldCell.playerUnits = null;
+  if(oldCell.playerUnits){
+    oldCell.playerUnits = oldCell.playerUnits.filter((u) => u.id !== unit.id);
+    if (oldCell.playerUnits.length < 1) {
+      oldCell.playerUnits = null;
+    }
   }
 
   return;
@@ -122,6 +124,16 @@ const unitLog = (unit, gameState, message) => {
   gameState.logs.push(`turn:${gameState.turn} unit:${unit.id} - ${message}`);
 };
 
+const getSavedUnitProps = (savedUnitData, unit) => {
+  if(savedUnitData){
+    for(var prop in savedUnitData){
+      if(!unit.hasOwnProperty(prop)){
+        unit[prop] = savedUnitData[prop];
+      }
+    }
+  }
+};
+
 module.exports = {
   getPositionHash,
   modelPosMoveByDirection,
@@ -131,4 +143,5 @@ module.exports = {
   updateUnitPositionInLiveMap,
   getNextStepTowardDestinationViaPathfinding,
   unitLog,
+  getSavedUnitProps,
 };

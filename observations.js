@@ -41,9 +41,8 @@ const getClosestUnclaimedResourceTile = (unit, gameState) => {
 //find furthest unclaimed resource for a spreading behavior
 const getFurthestUnclaimedResourceTile = (unit, gameState) => {
   const player = gameState.players[gameState.id];
-  let furthestUnclaimedResourceTile = gameState.storage.units[unit.id]?.fixedTravelCell || null;
+  let furthestUnclaimedResourceTile = unit.fixedTravelCell || null;
   if(furthestUnclaimedResourceTile) return furthestUnclaimedResourceTile;
-console.error(unit.id)
   const resourceTiles = getAllResourceTiles(gameState);
   let furthestDist = 0;
   resourceTiles
@@ -78,7 +77,6 @@ console.error(unit.id)
     });
   //this locks in a fixed travel cell, so unit won't keep looking for the furthest resource and will find a destination and stay with it until arrival
   unit.fixedTravelCell = furthestUnclaimedResourceTile;
-  gameState.storage.units[unit.id] = unit;
   return furthestUnclaimedResourceTile;
 };
 

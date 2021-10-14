@@ -7,12 +7,11 @@ const spread = (gameState) => {
   player.units.forEach((unit) => {
     if(Number(unit.id.replace("u_", "")) < 2){
       unit.travelComplete = true;
-      gameState.storage.units[unit.id] = unit;
     }
-    if (player.researchPoints < 50) {
-      unitArchetypes[unit.id] = player.units.length < 2 || gameState.storage.units[unit.id]?.travelComplete ? builder : traveller;
+    unitArchetypes[unit.id] = player.units.length < 2 || unit.travelComplete ? builder : traveller;
+    if (player.researchPoints < 200) {
     } else {
-      unitArchetypes[unit.id] = generalist;
+      //unitArchetypes[unit.id] = generalist;
     }
   });
 

@@ -1,19 +1,20 @@
 const kit = require("./lux/kit");
 const agent = new kit.Agent();
+const annotate = kit.annotate;
 const fs = require("fs");
 
 const { getCountOwnedCityTiles } = require("./observations");
-const { initializeLiveMap } = require("./utils");
+const { initializeLiveMap, getSavedUnitProps } = require("./utils");
 
 const { generalist, collector, expander, builder } = require("./archetypes");
 const { fullGeneralist, rushCoal, rushUranium, spread } = require("./plays");
 
 const logs = [];
 
-//data that will persist through turns
-let globalStorage = {
-  units:{}
-} 
+//gameState data that will persist through turns
+let gameStateStorage = {
+  units: {}
+};
 
 // first initialize the agent, and then proceed to go in a loop waiting for updates and running the AI
 agent.initialize().then(async() => {
@@ -23,12 +24,10 @@ agent.initialize().then(async() => {
     await agent.update();
 
     const actions = [];
-    const gameState = agent.gameState;
+    let gameState = agent.gameState;
     gameState.actions = actions;
     gameState.logs = logs;
     gameState.liveMap = initializeLiveMap(gameState); //clone of map that we updated with chosen moves
-    gameState.storage = globalStorage;
-    
     /** AI Code Goes Below! **/
     
     const player = gameState.players[gameState.id];
@@ -37,7 +36,23 @@ agent.initialize().then(async() => {
 
     // we iterate over all our units and do something with them
     player.units.forEach((unit) => {
+      //merge unit data
+      getSavedUnitProps(gameStateStorage.units[unit.id], unit); 
+      unit.num = unit.id.replace("u_", "");
+
       unitArchetypes[unit.id](unit, gameState);
+
+      //save unit data
+      gameStateStorage.units[unit.id] = Object.assign({}, unit);
+
+      //annotate 
+      actions.push(annotate.text(unit.pos.x, unit.pos.y, unit.name + unit.num, 40));
+      if(unit.name === "traveller"){
+        const travelPos = unit.fixedTravelCell;
+        if(travelPos){
+          actions.push(annotate.text(travelPos.pos.x, travelPos.pos.y, unit.num, 40));
+        } 
+      }
     });
 
     const citiesArr = Object.values(Object.fromEntries(player.cities));
@@ -63,17 +78,12 @@ agent.initialize().then(async() => {
       console.log("wrote logs");
     });
 
-    //set global storage
-    globalStorage = JSON.parse(JSON.stringify(gameState.storage));
-
     /** AI Code Goes Above! **/
 
     /** Do not edit! **/
     console.log(actions.join(","));
     // end turn
     agent.endTurn();
-    //store globals
-    //globalUnits = gameState.globalUnits;
   }
 });
 
