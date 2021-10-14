@@ -5,9 +5,6 @@ const spread = (gameState) => {
   const unitArchetypes = {};
 
   player.units.forEach((unit) => {
-    if(Number(unit.id.replace("u_", "")) < 2){
-      unit.travelComplete = true;
-    }
     unitArchetypes[unit.id] = player.units.length < 2 || unit.travelComplete ? builder : traveller;
     if (player.researchPoints < 200) {
     } else {
